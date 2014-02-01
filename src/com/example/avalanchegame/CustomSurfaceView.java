@@ -1,5 +1,6 @@
 package com.example.avalanchegame;
 
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 import android.hardware.SensorEvent;
@@ -126,6 +127,8 @@ public class CustomSurfaceView
 
         private long             lastTime        = System.currentTimeMillis();
 
+        private Random seededRandom;
+
 
         // ----------------------------------------------------------
         /**
@@ -152,12 +155,17 @@ public class CustomSurfaceView
             mBlackPaint.setStyle(Style.FILL);
 
             boxes.add(testBlock);
+
+
+            //creates a seeded random object
+            //TODO fill this in with a real seed later
+            seededRandom = new Random((long)(Long.MAX_VALUE*Math.random()));
         }
 
 
         private int randInt(int min, int max)
         {
-            return (int)(Math.random() * (max - min) + min);
+            return (int)(seededRandom.nextDouble() * (max - min) + min);
         }
 
 
