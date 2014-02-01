@@ -567,7 +567,7 @@ public class CustomSurfaceView
         public void onSensorChanged(SensorEvent event)
         {
             // TODO Auto-generated method stub
-            player.setXAccel(event.values[0]);
+            player.setXVelocity(event.values[0]);
         }
     }
 

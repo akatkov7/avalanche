@@ -209,7 +209,7 @@ public class Player
     }
 
 
-    public void setXAccel(float fok)
+    public void setXVelocity(float fok)
     {
         // Log.d("FOK", "" + fok);
         // ax = -100 * fok;
