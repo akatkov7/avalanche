@@ -1,5 +1,7 @@
 package com.example.avalanchegame;
 
+import java.util.ArrayList;
+import java.util.List;
 import android.hardware.SensorEvent;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -109,6 +111,16 @@ public class CustomSurfaceView
                                                              (int)(.8 * mCanvasHeight) - 300),
                                                          1080,
                                                          1920);
+        private List<Box> boxes = new ArrayList<Box>();
+        /**
+         * Defines the N predominant column structures that govern where new
+         * boxes spawn.
+         */
+        private Box[] columns = new Box[4];
+
+        private int minWidth = 2 * (mCanvasWidth / 30); // Even number
+        private int maxWidth = 2 * (mCanvasWidth / 15); // Even number
+
         private long lastTime = System.currentTimeMillis();
 
 
@@ -135,6 +147,83 @@ public class CustomSurfaceView
 
             mBGPaint.setColor(Color.WHITE);
             mBGPaint.setStyle(Style.FILL);
+        }
+
+        private int randInt(int min, int max) {
+            return (int) (Math.random() * (max - min) + min);
+        }
+        public void generateInitialBoxes() {
+            for (int i = 0; i < columns.length; i++) {
+                int width = randInt(minWidth, maxWidth) * 2;
+                int x = randInt(0, mCanvasWidth);
+                boolean collisions = true;
+                while (collisions) {
+                    collisions = false;
+                    for (Box rect : columns) {
+                        if (rect == null) continue;
+                        if (x + width/2 > rect.left && x - width/2 < rect.right) {
+                            x = randInt(0, mCanvasWidth);
+                            collisions = true;
+                            break;
+                        }
+                    }
+                }
+
+                Box box = new Box(x, width / 2, width);
+                boxes.add(box);
+                columns[i] = box;
+            }
+        }
+
+        /**
+         * @todo make it not spawn blocks off the screen
+         * (when generating random x, cap the minimum and maximum x coordinate)
+         * @todo figure out why it spawns them inside each other
+         */
+        public void generateNextBox() {
+            int width = randInt(minWidth, maxWidth) * 2;
+
+            // Pick a column to add a rectangle to
+            // Not purely random, somewhat weighted by how low the highest box
+            // in each column is (prefer adding boxes to shorter columns)
+            float[] possibilities = new float[columns.length];
+            final int PAD = 5;
+
+            float highestColumnBoxHeight = 0f;
+            for (int i = 0; i < columns.length; i++) {
+                Box prect = columns[i];
+
+                for (Box poss : columns) {
+                    if (poss.getY() > highestColumnBoxHeight) {
+                        highestColumnBoxHeight = poss.getY();
+                    }
+                }
+                float p = prect.getY()+ randInt(0,
+                    (int) (highestColumnBoxHeight - prect.getY() + PAD));
+                possibilities[i] = p;
+            }
+
+            int columnIndex = 0;
+            float smallestPossibility = Float.MAX_VALUE;
+            for (int i = 0; i < possibilities.length; i++) {
+                if (possibilities[i] < smallestPossibility) {
+                    columnIndex = i;
+                    smallestPossibility = possibilities[i];
+                }
+            }
+
+            Box baseBox = columns[columnIndex];
+
+            // Create a new box on top of baseBox
+            System.out.println("" + baseBox.top + " " + (baseBox.getY() + baseBox.getSize() / 2));
+            float y = baseBox.top + width/2;
+            float x = randInt((int) (baseBox.left - width/2 + 1),
+                (int) (baseBox.right + width/2 - 1));
+            Box newBox = new Box(x, y, width);
+
+            // Add this box to the list of boxes & replace baseBox as the column head
+            boxes.add(newBox);
+            columns[columnIndex] = newBox;
         }
 
 
@@ -181,10 +270,10 @@ public class CustomSurfaceView
         }
 
 
+        private long beginTime; // the time when the cycle began
         @Override
         public void run()
         {
-            long beginTime; // the time when the cycle began
             long timeDiff; // the time it took for the cycle to execute
             int sleepTime = 0; // ms to sleep (<0 if we're behind)
             int framesSkipped; // number of frames being skipped
@@ -345,12 +434,19 @@ public class CustomSurfaceView
             setState(STATE_RUNNING);
         }
 
-
+        boolean firstTime = true;
         /**
          * TODO: FILL THIS IN WITH GAME LOGIC. (move, attack, etc)
          */
         private void updateLogic()
         {
+            if (firstTime) {
+                generateInitialBoxes();
+                for (int i = 0; i < 5; i++) {
+                    generateNextBox();
+                }
+            }
+            firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
             // mBlockRect.offset(0, mCanvasHeight / 200);
             if (RectF.intersects(player.getRect(), mGrassRect))
@@ -360,6 +456,10 @@ public class CustomSurfaceView
                 // mBlockRect.top = mBlockRect.bottom - 100;
                 grounded = true;
             }
+
+            long timeElapsed = lastTime - beginTime;
+
+
             lastTime = System.currentTimeMillis();
             // Log.d("HIT", mBlockRect.flattenToString());
         }
@@ -377,6 +477,10 @@ public class CustomSurfaceView
             canvas.drawColor(Color.WHITE);
             canvas.drawRect(mGrassRect, mGrassPaint);
             player.draw(canvas);
+
+            for (Box box : boxes) {
+                box.draw(canvas);
+            }
             // canvas.drawRect(mBlockRect, mBlockPaint);
         }
 
