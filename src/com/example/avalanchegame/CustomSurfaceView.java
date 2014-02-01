@@ -111,7 +111,6 @@ public class CustomSurfaceView
                                                              (int)(.8 * mCanvasHeight) - 600),
                                                          1080,
                                                          1920);
-<<<<<<< HEAD
         private List<Box> boxes = new ArrayList<Box>();
         /**
          * Defines the N predominant column structures that govern where new
@@ -122,13 +121,12 @@ public class CustomSurfaceView
         private int minWidth = 2 * (mCanvasWidth / 30); // Even number
         private int maxWidth = 2 * (mCanvasWidth / 15); // Even number
 
-=======
         private RectF testBlock = new RectF(mCanvasWidth / 2 - 150,
             (int)(.8 * mCanvasHeight) - 300 - 300,
             mCanvasWidth / 2 + 150,
             (int)(.8 * mCanvasHeight) - 300);
         private RectF[] listOfBlocks = {mGrassRect, testBlock};
->>>>>>> e3f6f811f5c64bb9746026b9501579f1194f6198
+
         private long lastTime = System.currentTimeMillis();
 
 
@@ -457,19 +455,9 @@ public class CustomSurfaceView
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
             // mBlockRect.offset(0, mCanvasHeight / 200);
-<<<<<<< HEAD
-            if (RectF.intersects(player.getRect(), mGrassRect))
-            {
-                player.fixIntersection(mGrassRect);
-                // mBlockRect.bottom = mGrassRect.top;
-                // mBlockRect.top = mBlockRect.bottom - 100;
-                grounded = true;
-            }
 
             long timeElapsed = lastTime - beginTime;
 
-
-=======
             for (RectF brock : listOfBlocks)
                 if (player.intersects(brock) > -1)
                 {
@@ -479,7 +467,7 @@ public class CustomSurfaceView
                     // mBlockRect.top = mBlockRect.bottom - 100;
                     grounded = true;
                 }
->>>>>>> e3f6f811f5c64bb9746026b9501579f1194f6198
+
             lastTime = System.currentTimeMillis();
             // Log.d("HIT", mBlockRect.flattenToString());
         }
