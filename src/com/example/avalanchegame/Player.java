@@ -28,11 +28,12 @@ public class Player
     {
         playerRect = r;
         width = (int)(r.right - r.left);
-        height = (int)(r.bottom - r.top);
+        height = (int)(r.top - r.bottom);
         canvasWidth = cW;
         canvasHeight = cH;
         py = playerRect.centerY();
         px = playerRect.centerX();
+        ax = 10;
         ay = -canvasHeight * 1.5f;
         playerPaint = new Paint();
         playerPaint.setColor(Color.BLACK);
@@ -86,45 +87,59 @@ public class Player
 // && playerRect.left > collided.left)
 // return 3;
 // }
+        // Log.d("INTERSECTS", this.playerRect+" "+collided);
         int minimumIntersectIndex = -1;
-        if (playerRect.top > collided.bottom
-            && playerRect.top < collided.top
-            && ((playerRect.right < collided.right && playerRect.right > collided.left) || (playerRect.left > collided.left && playerRect.left < collided.right)))
-        {
-            float intersectBot = playerRect.top - collided.bottom;
-            float intersectRight = playerRect.right - collided.left;
-            float intersectLeft = collided.right - playerRect.left;
-            minimumIntersectIndex = 2;
-            float minimumIntersect = intersectBot;
-            if(intersectRight > 0 && intersectRight < minimumIntersect)
-            {
-                minimumIntersectIndex = 1;
-                minimumIntersect = intersectRight;
-            }
-            if(intersectLeft > 0 && intersectLeft < minimumIntersect)
-            {
-                minimumIntersectIndex = 3;
-                minimumIntersect = intersectLeft;
-            }
-        }
-        else if (playerRect.bottom < collided.top
+        float minimumIntersect = Math.max(canvasHeight, canvasWidth);
+        if (playerRect.bottom < collided.top
             && playerRect.bottom > collided.bottom
             && ((playerRect.right < collided.right && playerRect.right > collided.left) || (playerRect.left > collided.left && playerRect.left < collided.right)))
         {
             float intersectBot = collided.top - playerRect.bottom;
             float intersectRight = playerRect.right - collided.left;
             float intersectLeft = collided.right - playerRect.left;
-            minimumIntersectIndex = 0;
-            float minimumIntersect = intersectBot;
+            if(intersectBot > 0 && intersectBot < minimumIntersect)
+            {
+                minimumIntersectIndex = 2;
+                minimumIntersect = intersectBot;
+                // Log.d("INTERSECTS", "2 "+this.playerRect+" "+collided);
+            }
             if(intersectRight > 0 && intersectRight < minimumIntersect)
             {
                 minimumIntersectIndex = 1;
                 minimumIntersect = intersectRight;
+                Log.d("INTERSECTS", "1 "+this.playerRect+" "+collided);
             }
             if(intersectLeft > 0 && intersectLeft < minimumIntersect)
             {
                 minimumIntersectIndex = 3;
                 minimumIntersect = intersectLeft;
+                Log.d("INTERSECTS", "3 "+this.playerRect+" "+collided);
+            }
+        }
+        else if (playerRect.top < collided.top
+            && playerRect.top > collided.bottom
+            && ((playerRect.right < collided.right && playerRect.right > collided.left) || (playerRect.left > collided.left && playerRect.left < collided.right)))
+        {
+            float intersectBot = playerRect.top - collided.bottom;
+            float intersectRight = playerRect.right - collided.left;
+            float intersectLeft = collided.right - playerRect.left;
+            if(intersectBot > 0 && intersectBot < minimumIntersect)
+            {
+                minimumIntersectIndex = 0;
+                minimumIntersect = intersectBot;
+                Log.d("INTERSECTS", "0 "+this.playerRect+" "+collided);
+            }
+            if(intersectRight > 0 && intersectRight < minimumIntersect)
+            {
+                minimumIntersectIndex = 1;
+                minimumIntersect = intersectRight;
+                Log.d("INTERSECTS", "1 "+this.playerRect+" "+collided);
+            }
+            if(intersectLeft > 0 && intersectLeft < minimumIntersect)
+            {
+                minimumIntersectIndex = 3;
+                minimumIntersect = intersectLeft;
+                Log.d("INTERSECTS", "3 "+this.playerRect+" "+collided);
             }
         }
         return minimumIntersectIndex;
@@ -133,27 +148,29 @@ public class Player
 
     public void fixIntersection(RectF other, int whichSide)
     {
-        if (whichSide == 0) // bottom
+        if (whichSide == 0) // top
         {
-            playerRect.bottom = other.top; // + 10;
-            playerRect.top = playerRect.bottom + height;
+            playerRect.top = other.bottom; // + 10;
+            playerRect.bottom = playerRect.top - height;
             vy = 0;
             py = playerRect.centerY();
+            Log.d("CENTER", playerRect+"");
         }
         else if (whichSide == 1) // right
         {
             playerRect.right = other.left;
-            playerRect.left = playerRect.right - height;
+            playerRect.left = playerRect.right - width;
             vx = 0;
             px = playerRect.centerX();
+            Log.d("CENTER", playerRect+"");
         }
-        else if (whichSide == 2) // top
+        else if (whichSide == 2) // bottom
         {
-            playerRect.top = other.bottom;
-            playerRect.bottom = playerRect.top - height;
+            playerRect.bottom = other.top;
+            playerRect.top = playerRect.bottom + height;
             vy = 0;
             py = playerRect.centerY();
-            Log.d("CENTER", py+"");
+            // Log.d("CENTER", playerRect+"");
         }
         else if (whichSide == 3) // left
         {
@@ -161,6 +178,7 @@ public class Player
             playerRect.right = playerRect.left + width;
             vx = 0;
             px = playerRect.centerX();
+            Log.d("CENTER", playerRect+"");
         }
     }
 
@@ -171,6 +189,7 @@ public class Player
             py + vy * (deltaT / 1000.0f)
                 + (-ay * (deltaT / 1000.0f) * (deltaT / 1000.0f));
         vy += ay * (deltaT / 1000.0f);
+        //TODO: add a friction for ground stuff
         float pxtemp = px + vx * (deltaT / 1000.0f);
         playerRect.offset(pxtemp - px, pytemp - py);
         if (playerRect.left < 0)

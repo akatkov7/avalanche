@@ -44,7 +44,7 @@ public class CustomSurfaceView
         /*
          * These are used for frame timing
          */
-        private final static int MAX_FPS         = 1;
+        private final static int MAX_FPS         = 50;
         private final static int MAX_FRAME_SKIPS = 5;
         private final static int FRAME_PERIOD    = 1000 / MAX_FPS;
 
@@ -66,14 +66,14 @@ public class CustomSurfaceView
          *
          * @see #setSurfaceSize
          */
-        private int              mCanvasHeight   = 1920;                                  // 1;
+        private int              mCanvasHeight   = 1920;                      // 1;
 
         /**
          * Current width of the surface/canvas.
          *
          * @see #setSurfaceSize
          */
-        private int              mCanvasWidth    = 1080;                                  // 1;
+        private int              mCanvasWidth    = 1080;                      // 1;
 
         /** the current scroll offset */
         private int              scrollX         = 0;
@@ -100,34 +100,31 @@ public class CustomSurfaceView
                                                      mCanvasWidth,
                                                      mCanvasHeight);
 
-        private Paint            mBlackPaint        = new Paint();
+        private Paint            mBlackPaint     = new Paint();
         private boolean          grounded        = false;
-        private Player           player          =
-                                                     new Player(
-                                                         new RectF(
-                                                             mCanvasWidth / 2 - 50,
-                                                             200,
-                                                             mCanvasWidth / 2 + 50,
-                                                             100),
-                                                         1080,
-                                                         1920);
-        private List<Box> boxes = new ArrayList<Box>();
+        private Player           player          = new Player(new RectF(
+                                                     mCanvasWidth / 2 - 50,
+                                                     900,
+                                                     mCanvasWidth / 2 + 50,
+                                                     800), 1080, 1920);
+        private List<Box>        boxes           = new ArrayList<Box>();
         /**
          * Defines the N predominant column structures that govern where new
          * boxes spawn.
          */
-        private Box[] columns = new Box[4];
+        private Box[]            columns         = new Box[4];
 
-        private int minWidth = 2 * (mCanvasWidth / 30); // Even number
-        private int maxWidth = 2 * (mCanvasWidth / 15); // Even number
+        private int              minWidth        = 2 * (mCanvasWidth / 30);   // Even
+// number
+        private int              maxWidth        = 2 * (mCanvasWidth / 15);   // Even
+// number
 
-        private RectF testBlock = new RectF(mCanvasWidth / 2 - 150,
-            (int)(.8 * mCanvasHeight) - 300 - 300,
-            mCanvasWidth / 2 + 150,
-            (int)(.8 * mCanvasHeight) - 300);
-        private RectF[] listOfBlocks = {mGrassRect, testBlock};
+        private Box              testBlock       = new Box(
+                                                     mCanvasWidth / 2,
+                                                     mCanvasHeight / 2 - 500,
+                                                     200);
 
-        private long lastTime = System.currentTimeMillis();
+        private long             lastTime        = System.currentTimeMillis();
 
 
         // ----------------------------------------------------------
@@ -153,22 +150,35 @@ public class CustomSurfaceView
 
             mBlackPaint.setColor(Color.BLACK);
             mBlackPaint.setStyle(Style.FILL);
+
+            boxes.add(testBlock);
         }
 
-        private int randInt(int min, int max) {
-            return (int) (Math.random() * (max - min) + min);
-        }
-        public void generateInitialBoxes() {
 
-            for (int i = 0; i < columns.length; i++) {
+        private int randInt(int min, int max)
+        {
+            return (int)(Math.random() * (max - min) + min);
+        }
+
+
+        public void generateInitialBoxes()
+        {
+
+            for (int i = 0; i < columns.length; i++)
+            {
                 int width = randInt(minWidth, maxWidth) * 2;
                 int x = randInt(0, mCanvasWidth);
                 boolean collisions = true;
-                while (collisions) {
+                while (collisions)
+                {
                     collisions = false;
-                    for (Box rect : columns) {
-                        if (rect == null) continue;
-                        if (x + width/2 > rect.left && x - width/2 < rect.right) {
+                    for (Box rect : columns)
+                    {
+                        if (rect == null)
+                            continue;
+                        if (x + width / 2 > rect.left
+                            && x - width / 2 < rect.right)
+                        {
                             x = randInt(0, mCanvasWidth);
                             collisions = true;
                             break;
@@ -182,12 +192,14 @@ public class CustomSurfaceView
             }
         }
 
+
         /**
-         * @todo make it not spawn blocks off the screen
-         * (when generating random x, cap the minimum and maximum x coordinate)
+         * @todo make it not spawn blocks off the screen (when generating random
+         *       x, cap the minimum and maximum x coordinate)
          * @todo figure out why it spawns them inside each other
          */
-        public void generateNextBox() {
+        public void generateNextBox()
+        {
             int width = randInt(minWidth, maxWidth) * 2;
 
             // Pick a column to add a rectangle to
@@ -197,23 +209,31 @@ public class CustomSurfaceView
             final int PAD = 5;
 
             float highestColumnBoxHeight = 0f;
-            for (int i = 0; i < columns.length; i++) {
+            for (int i = 0; i < columns.length; i++)
+            {
                 Box prect = columns[i];
 
-                for (Box poss : columns) {
-                    if (poss.getY() > highestColumnBoxHeight) {
+                for (Box poss : columns)
+                {
+                    if (poss.getY() > highestColumnBoxHeight)
+                    {
                         highestColumnBoxHeight = poss.getY();
                     }
                 }
-                float p = prect.getY()+ randInt(0,
-                    (int) (highestColumnBoxHeight - prect.getY() + PAD));
+                float p =
+                    prect.getY()
+                        + randInt(
+                            0,
+                            (int)(highestColumnBoxHeight - prect.getY() + PAD));
                 possibilities[i] = p;
             }
 
             int columnIndex = 0;
             float smallestPossibility = Float.MAX_VALUE;
-            for (int i = 0; i < possibilities.length; i++) {
-                if (possibilities[i] < smallestPossibility) {
+            for (int i = 0; i < possibilities.length; i++)
+            {
+                if (possibilities[i] < smallestPossibility)
+                {
                     columnIndex = i;
                     smallestPossibility = possibilities[i];
                 }
@@ -222,13 +242,17 @@ public class CustomSurfaceView
             Box baseBox = columns[columnIndex];
 
             // Create a new box on top of baseBox
-            System.out.println("" + baseBox.top + " " + (baseBox.getY() + baseBox.getSize() / 2));
-            float y = baseBox.top + width/2;
-            float x = randInt((int) (baseBox.left - width/2 + 1),
-                (int) (baseBox.right + width/2 - 1));
+            System.out.println("" + baseBox.top + " "
+                + (baseBox.getY() + baseBox.getSize() / 2));
+            float y = baseBox.top + width / 2;
+            float x =
+                randInt(
+                    (int)(baseBox.left - width / 2 + 1),
+                    (int)(baseBox.right + width / 2 - 1));
             Box newBox = new Box(x, y, width);
 
-            // Add this box to the list of boxes & replace baseBox as the column head
+            // Add this box to the list of boxes & replace baseBox as the column
+// head
             boxes.add(newBox);
             columns[columnIndex] = newBox;
         }
@@ -276,8 +300,9 @@ public class CustomSurfaceView
             }
         }
 
-
         private long beginTime; // the time when the cycle began
+
+
         @Override
         public void run()
         {
@@ -442,34 +467,38 @@ public class CustomSurfaceView
         }
 
         boolean firstTime = true;
+
+
         /**
          * TODO: FILL THIS IN WITH GAME LOGIC. (move, attack, etc)
          */
         private void updateLogic()
         {
-            System.out.println(player.getRect().bottom);
-            if (firstTime) {
+            // System.out.println(player.getRect().centerY());
+            if (firstTime)
+            {
                 boxes.add(new Box(mCanvasWidth / 2, -5000, 10000));
-//                generateInitialBoxes();
-//                for (int i = 0; i < 5; i++) {
-//                    generateNextBox();
-//                }
+                generateInitialBoxes();
+// for (int i = 0; i < 5; i++) {
+// generateNextBox();
+// }
             }
             firstTime = false;
-            //player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
+            // player.adjustPosition((int)(System.currentTimeMillis() -
+// lastTime));
             player.adjustPosition(30);
             // mBlockRect.offset(0, mCanvasHeight / 200);
 
             long timeElapsed = lastTime - beginTime;
 
-            for (RectF brock : listOfBlocks)
+            for (Box brock : boxes)
                 if (player.intersects(brock) > -1)
                 {
-                    // Log.d("INTERSECTION", "IM INTERSECTING " + player.intersects(brock));
                     player.fixIntersection(brock, player.intersects(brock));
                     // mBlockRect.bottom = mGrassRect.top;
                     // mBlockRect.top = mBlockRect.bottom - 100;
                     grounded = true;
+                    // System.out.println(player.getRect().centerY());
                 }
 
             lastTime = System.currentTimeMillis();
@@ -487,11 +516,12 @@ public class CustomSurfaceView
             // so this is like clearing the screen.
             // canvas.drawBitmap(mBackgroundImage, 0, 0, null);
             canvas.drawColor(Color.WHITE);
-            //canvas.drawRect(mGrassRect, mGrassPaint);
-            canvas.drawRect(testBlock, mBlackPaint);
+            // canvas.drawRect(mGrassRect, mGrassPaint);
+            // canvas.drawRect(testBlock, mBlackPaint);
             player.draw(canvas);
 
-            for (Box box : boxes) {
+            for (Box box : boxes)
+            {
                 box.draw(canvas, player.getRect().bottom);
             }
             // canvas.drawRect(mBlockRect, mBlockPaint);
@@ -538,7 +568,6 @@ public class CustomSurfaceView
         {
             // TODO Auto-generated method stub
             player.setXAccel(event.values[0]);
-
         }
     }
 
