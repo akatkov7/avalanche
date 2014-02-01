@@ -33,7 +33,7 @@ public class Player
         canvasHeight = cH;
         py = playerRect.centerY();
         px = playerRect.centerX();
-        ay = canvasHeight * 1.5f;
+        ay = -canvasHeight * 1.5f;
         playerPaint = new Paint();
         playerPaint.setColor(Color.BLACK);
         playerPaint.setStyle(Style.FILL);
@@ -42,7 +42,23 @@ public class Player
 
     public void draw(Canvas c)
     {
-        c.drawRect(playerRect, playerPaint);
+        float ground = c.getHeight() * 0.8f;
+        float cutoff = c.getHeight() * 0.5f;
+
+        RectF localRect;
+        if (playerRect.bottom < cutoff) {
+            localRect = new RectF(playerRect.left,
+                ground - playerRect.top, playerRect.right,
+                ground - playerRect.bottom);
+        } else {
+            localRect = new RectF(playerRect.left,
+                ground - (playerRect.top - cutoff),
+                playerRect.right,
+                ground - (playerRect.bottom - cutoff));
+        }
+
+
+        c.drawRect(localRect, playerPaint);
     }
 
 
@@ -54,14 +70,14 @@ public class Player
 
     public int intersects(RectF collided)
     {
-// if ((playerRect.top < collided.bottom && playerRect.top > collided.top)
-// || (playerRect.bottom > collided.top && playerRect.bottom < collided.bottom))
+// if ((playerRect.bottom < collided.top && playerRect.bottom > collided.bottom)
+// || (playerRect.top > collided.bottom && playerRect.top < collided.top))
 // {
-// if (playerRect.top < collided.bottom
-// && playerRect.top > collided.top)
+// if (playerRect.bottom < collided.top
+// && playerRect.bottom > collided.bottom)
 // return 0;
-// if (playerRect.bottom > collided.top
-// && playerRect.bottom < collided.bottom)
+// if (playerRect.top > collided.bottom
+// && playerRect.top < collided.top)
 // return 2;
 // if (playerRect.right > collided.left
 // && playerRect.right < collided.right)
@@ -71,11 +87,11 @@ public class Player
 // return 3;
 // }
         int minimumIntersectIndex = -1;
-        if (playerRect.bottom > collided.top
-            && playerRect.bottom < collided.bottom
+        if (playerRect.top > collided.bottom
+            && playerRect.top < collided.top
             && ((playerRect.right < collided.right && playerRect.right > collided.left) || (playerRect.left > collided.left && playerRect.left < collided.right)))
         {
-            float intersectBot = playerRect.bottom - collided.top;
+            float intersectBot = playerRect.top - collided.bottom;
             float intersectRight = playerRect.right - collided.left;
             float intersectLeft = collided.right - playerRect.left;
             minimumIntersectIndex = 2;
@@ -91,11 +107,11 @@ public class Player
                 minimumIntersect = intersectLeft;
             }
         }
-        else if (playerRect.top < collided.bottom
-            && playerRect.top > collided.top
+        else if (playerRect.bottom < collided.top
+            && playerRect.bottom > collided.bottom
             && ((playerRect.right < collided.right && playerRect.right > collided.left) || (playerRect.left > collided.left && playerRect.left < collided.right)))
         {
-            float intersectBot = collided.bottom - playerRect.top;
+            float intersectBot = collided.top - playerRect.bottom;
             float intersectRight = playerRect.right - collided.left;
             float intersectLeft = collided.right - playerRect.left;
             minimumIntersectIndex = 0;
@@ -117,10 +133,10 @@ public class Player
 
     public void fixIntersection(RectF other, int whichSide)
     {
-        if (whichSide == 0) // top
+        if (whichSide == 0) // bottom
         {
-            playerRect.top = other.bottom; // + 10;
-            playerRect.bottom = playerRect.top + height;
+            playerRect.bottom = other.top; // + 10;
+            playerRect.top = playerRect.bottom + height;
             vy = 0;
             py = playerRect.centerY();
         }
@@ -131,10 +147,10 @@ public class Player
             vx = 0;
             px = playerRect.centerX();
         }
-        else if (whichSide == 2) // bottom
+        else if (whichSide == 2) // top
         {
-            playerRect.bottom = other.top;
-            playerRect.top = playerRect.bottom - height;
+            playerRect.top = other.bottom;
+            playerRect.bottom = playerRect.top - height;
             vy = 0;
             py = playerRect.centerY();
             Log.d("CENTER", py+"");
@@ -184,7 +200,7 @@ public class Player
 
     public void jump()
     {
-        vy -= 1500;
+        vy += 1500;
         // playerRect.offset(0, -canvasHeight / 5);
     }
 }
