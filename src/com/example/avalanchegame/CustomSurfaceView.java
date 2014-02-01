@@ -92,23 +92,28 @@ public class CustomSurfaceView
         /** Temporary green paint for grass */
         private Paint            mGrassPaint     = new Paint();
         /** Temporary rect for the grass */
-        private RectF             mGrassRect      = new RectF(
+        private RectF            mGrassRect      = new RectF(
                                                      0,
                                                      (int)(.8 * mCanvasHeight),
                                                      mCanvasWidth,
                                                      mCanvasHeight);
 
-        private Paint            mBGPaint        = new Paint();
+        private Paint            mBlackPaint        = new Paint();
         private boolean          grounded        = false;
         private Player           player          =
                                                      new Player(
                                                          new RectF(
                                                              mCanvasWidth / 2 - 50,
-                                                             (int)(.8 * mCanvasHeight) - 100 - 300,
+                                                             (int)(.8 * mCanvasHeight) - 100 - 600,
                                                              mCanvasWidth / 2 + 50,
-                                                             (int)(.8 * mCanvasHeight) - 300),
+                                                             (int)(.8 * mCanvasHeight) - 600),
                                                          1080,
                                                          1920);
+        private RectF testBlock = new RectF(mCanvasWidth / 2 - 150,
+            (int)(.8 * mCanvasHeight) - 300 - 300,
+            mCanvasWidth / 2 + 150,
+            (int)(.8 * mCanvasHeight) - 300);
+        private RectF[] listOfBlocks = {mGrassRect, testBlock};
         private long lastTime = System.currentTimeMillis();
 
 
@@ -133,8 +138,8 @@ public class CustomSurfaceView
             mGrassPaint.setColor(Color.GREEN);
             mGrassPaint.setStyle(Style.FILL);
 
-            mBGPaint.setColor(Color.WHITE);
-            mBGPaint.setStyle(Style.FILL);
+            mBlackPaint.setColor(Color.BLACK);
+            mBlackPaint.setStyle(Style.FILL);
         }
 
 
@@ -353,13 +358,15 @@ public class CustomSurfaceView
         {
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
             // mBlockRect.offset(0, mCanvasHeight / 200);
-            if (RectF.intersects(player.getRect(), mGrassRect))
-            {
-                player.fixIntersection(mGrassRect);
-                // mBlockRect.bottom = mGrassRect.top;
-                // mBlockRect.top = mBlockRect.bottom - 100;
-                grounded = true;
-            }
+            for (RectF brock : listOfBlocks)
+                if (player.intersects(brock) > -1)
+                {
+                    // Log.d("INTERSECTION", "IM INTERSECTING " + player.intersects(brock));
+                    player.fixIntersection(brock, player.intersects(brock));
+                    // mBlockRect.bottom = mGrassRect.top;
+                    // mBlockRect.top = mBlockRect.bottom - 100;
+                    grounded = true;
+                }
             lastTime = System.currentTimeMillis();
             // Log.d("HIT", mBlockRect.flattenToString());
         }
@@ -376,6 +383,7 @@ public class CustomSurfaceView
             // canvas.drawBitmap(mBackgroundImage, 0, 0, null);
             canvas.drawColor(Color.WHITE);
             canvas.drawRect(mGrassRect, mGrassPaint);
+            canvas.drawRect(testBlock, mBlackPaint);
             player.draw(canvas);
             // canvas.drawRect(mBlockRect, mBlockPaint);
         }
