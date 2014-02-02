@@ -101,7 +101,6 @@ public class CustomSurfaceView
                                                      mCanvasHeight);
 
         private Paint            mBlackPaint     = new Paint();
-        private boolean          grounded        = false;
         private Player           player          = new Player(new RectF(
                                                      mCanvasWidth / 2 - 50,
                                                      900,
@@ -474,6 +473,8 @@ public class CustomSurfaceView
          */
         private void updateLogic()
         {
+            // Log.d("BOUNCE", "START "+player.getRect());
+            // Log.d("BOUNCE", "START "+testBlock);
             // System.out.println(player.getRect().centerY());
             if (firstTime)
             {
@@ -487,6 +488,8 @@ public class CustomSurfaceView
             // player.adjustPosition((int)(System.currentTimeMillis() -
 // lastTime));
             player.adjustPosition(30);
+            // Log.d("BOUNCE", "S1 "+player.getRect());
+            // Log.d("BOUNCE", "S1 "+testBlock);
             // mBlockRect.offset(0, mCanvasHeight / 200);
 
             long timeElapsed = lastTime - beginTime;
@@ -497,11 +500,13 @@ public class CustomSurfaceView
                     player.fixIntersection(brock, player.intersects(brock));
                     // mBlockRect.bottom = mGrassRect.top;
                     // mBlockRect.top = mBlockRect.bottom - 100;
-                    grounded = true;
+                    player.grounded = true;
                     // System.out.println(player.getRect().centerY());
                 }
 
             lastTime = System.currentTimeMillis();
+            // Log.d("BOUNCE", "END "+player.getRect());
+            // Log.d("BOUNCE", "END "+testBlock);
             // Log.d("HIT", mBlockRect.flattenToString());
         }
 
@@ -551,11 +556,11 @@ public class CustomSurfaceView
                 {
                     case MotionEvent.ACTION_DOWN:
                         Log.d("onTouch", "touch down");
-                        if (grounded)
+                        if (player.grounded)
                         {
                             player.jump();
                             // mBlockRect.offset(0, -mCanvasHeight / 15);
-                            grounded = false;
+                            player.grounded = false;
                         }
                         break;
                 }
