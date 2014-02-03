@@ -28,7 +28,7 @@ public class Box
         this.y = y;
         this.size = size;
 
-        setVy(-5f);
+        setVy(-50f);
 
         fillPaint = new Paint();
         fillPaint.setColor(Color.BLUE);

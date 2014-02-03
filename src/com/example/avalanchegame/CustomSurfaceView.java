@@ -486,7 +486,9 @@ public class CustomSurfaceView
             // System.out.println(player.getRect().centerY());
             if (firstTime)
             {
-                boxes.add(new Box(mCanvasWidth / 2, -5000, 10000));
+                Box ground = new Box(mCanvasWidth / 2, -5000, 10000);
+                ground.setVy(0);
+                boxes.add(ground);
                 generateInitialBoxes();
 // for (int i = 0; i < 5; i++) {
 // generateNextBox();

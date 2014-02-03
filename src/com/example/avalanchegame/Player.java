@@ -161,7 +161,7 @@ public class Player
     {
         if (whichSide == 0) // top
         {
-            playerRect.top = other.bottom; // + 10;
+            playerRect.top = other.bottom - 0.5f; // + 10;
             playerRect.bottom = playerRect.top - height;
             vy = 0;
             py = playerRect.centerY();
@@ -169,7 +169,7 @@ public class Player
         }
         else if (whichSide == 1) // right
         {
-            playerRect.right = other.left;
+            playerRect.right = other.left - 0.5f;
             playerRect.left = playerRect.right - width;
             vx = 0;
             px = playerRect.centerX();
@@ -177,7 +177,7 @@ public class Player
         }
         else if (whichSide == 2) // bottom
         {
-            playerRect.bottom = other.top;
+            playerRect.bottom = other.top + 0.5f;
             playerRect.top = playerRect.bottom + height;
             vy = 0;
             py = playerRect.centerY();
@@ -185,7 +185,7 @@ public class Player
         }
         else if (whichSide == 3) // left
         {
-            playerRect.left = other.right;
+            playerRect.left = other.right + 0.5f;
             playerRect.right = playerRect.left + width;
             vx = 0;
             px = playerRect.centerX();
