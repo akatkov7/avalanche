@@ -82,23 +82,6 @@ public class Player
 
     public int intersects(RectF collided)
     {
-// if ((playerRect.bottom < collided.top && playerRect.bottom > collided.bottom)
-// || (playerRect.top > collided.bottom && playerRect.top < collided.top))
-// {
-// if (playerRect.bottom < collided.top
-// && playerRect.bottom > collided.bottom)
-// return 0;
-// if (playerRect.top > collided.bottom
-// && playerRect.top < collided.top)
-// return 2;
-// if (playerRect.right > collided.left
-// && playerRect.right < collided.right)
-// return 1;
-// if (playerRect.left < collided.right
-// && playerRect.left > collided.left)
-// return 3;
-// }
-        // Log.d("INTERSECTS", this.playerRect+" "+collided);
         int minimumIntersectIndex = -1;
         float minimumIntersect = Math.max(canvasHeight, canvasWidth);
         if (playerRect.bottom < collided.top
