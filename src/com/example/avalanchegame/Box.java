@@ -187,11 +187,12 @@ public class Box
     }
     public void fixIntersection(RectF other, int whichSide)
     {
-        if (whichSide == 0) // top
+        if (whichSide == 2) // bottom
         {
-            float amount = this.top - other.bottom + 0.5f;
-            this.top += amount; // + 10;
-            this.bottom += amount;
+            Log.d("Fock", "Top Top Fockothy");
+            float amount = other.top - this.bottom + 0.5f;
+            offset(0, amount);
+
             vy = 0;
             y += amount;
             // Log.d("CENTER", playerRect + "");

@@ -50,7 +50,6 @@ public class Player
         RectF localRect;
         if (playerRect.bottom < cutoff)
         {
-            Log.d("CUTOFF", "LESS THAN");
             localRect =
                 new RectF(
                     playerRect.left,

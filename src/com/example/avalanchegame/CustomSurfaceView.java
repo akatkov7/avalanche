@@ -496,7 +496,7 @@ public class CustomSurfaceView
                     .adjustPosition((int)(System.currentTimeMillis() - lastTime));
                 for (Box possibleCollisionBlock : boxes)
                 {
-                    if (possibleCollisionBlock.isMoving())
+                    if (!possibleCollisionBlock.isMoving())
                     {
                         int collisionIndicator =
                             block.intersects(possibleCollisionBlock);
