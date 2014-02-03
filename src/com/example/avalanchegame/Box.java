@@ -20,9 +20,10 @@ public class Box
     private Paint fillPaint;
     private Paint outlinePaint;
 
+
     public Box(float x, float y, float size)
     {
-        super(x - size/2, y + size/2, x + size/2, y - size/2);
+        super(x - size / 2, y + size / 2, x + size / 2, y - size / 2);
 
         this.x = x;
         this.y = y;
@@ -38,11 +39,15 @@ public class Box
         outlinePaint.setStyle(Style.STROKE);
     }
 
-    public void updateBounds() {
-        set(x - size/2, y + size/2, x + size/2, y - size/2);
+
+    public void updateBounds()
+    {
+        set(x - size / 2, y + size / 2, x + size / 2, y - size / 2);
     }
 
-    public void draw(Canvas c, float playerY) {
+
+    public void draw(Canvas c, float playerY)
+    {
         float ground = c.getHeight() * 0.8f;
         float cutoff = c.getHeight() * 0.5f;
 
@@ -50,28 +55,39 @@ public class Box
 
         /*
          * The function to convert from global to local coordinates not
-         * accounting for camera shift is l(y) = groundY - y.
-         * The playerY passed in is in local coordinates, so it should first
-         * be converted to global coordinates.
+         * accounting for camera shift is l(y) = groundY - y. The playerY passed
+         * in is in local coordinates, so it should first be converted to global
+         * coordinates.
          */
-        if (playerY < cutoff) {
+        if (playerY < cutoff)
+        {
             localBox = new RectF(left, ground - top, right, ground - bottom);
-        } else {
-            localBox = new RectF(left, ground - (top - (playerY - cutoff)), right, ground - (bottom - (playerY - cutoff)));
+        }
+        else
+        {
+            localBox =
+                new RectF(
+                    left,
+                    ground - (top - (playerY - cutoff)),
+                    right,
+                    ground - (bottom - (playerY - cutoff)));
         }
         c.drawRect(localBox, fillPaint);
         c.drawRect(localBox, outlinePaint);
     }
+
 
     public float getVy()
     {
         return vy;
     }
 
+
     public void setVy(float vy)
     {
         this.vy = vy;
     }
+
 
     // ----------------------------------------------------------
     /**
@@ -79,12 +95,14 @@ public class Box
      */
     public float getX()
     {
-        return x;
+        return this.centerX();
     }
+
 
     // ----------------------------------------------------------
     /**
-     * @param x the x to set
+     * @param x
+     *            the x to set
      */
     public void setX(float x)
     {
@@ -92,24 +110,28 @@ public class Box
         updateBounds();
     }
 
+
     // ----------------------------------------------------------
     /**
      * @return the y
      */
     public float getY()
     {
-        return y;
+        return this.centerY();
     }
+
 
     // ----------------------------------------------------------
     /**
-     * @param y the y to set
+     * @param y
+     *            the y to set
      */
     public void setY(float y)
     {
         this.y = y;
         updateBounds();
     }
+
 
     // ----------------------------------------------------------
     /**
@@ -120,9 +142,11 @@ public class Box
         return size;
     }
 
+
     // ----------------------------------------------------------
     /**
-     * @param size the size to set
+     * @param size
+     *            the size to set
      */
     public void setSize(float size)
     {
@@ -130,16 +154,48 @@ public class Box
         updateBounds();
     }
 
+
     public void adjustPosition(int deltaT)
     {
         this.offset(0, vy * deltaT / 1000);
+        y += vy*deltaT / 1000;
     }
 
-    public boolean isMoving() {
+
+    public boolean isMoving()
+    {
         return vy != 0;
     }
 
 
-
+    public int intersects(RectF collided)
+    {
+        int minimumIntersectIndex = -1;
+        if (this.bottom < collided.top
+            && this.bottom > collided.bottom
+            && ((this.right < collided.right && this.right > collided.left) || (this.left > collided.left && this.left < collided.right)))
+        {
+            minimumIntersectIndex = 2;
+        }
+//        else if (this.top < collided.top
+//            && this.top > collided.bottom
+//            && ((this.right < collided.right && this.right > collided.left) || (this.left > collided.left && this.left < collided.right)))
+//        {
+//            minimumIntersectIndex = 0;
+//        }
+        return minimumIntersectIndex;
+    }
+    public void fixIntersection(RectF other, int whichSide)
+    {
+        if (whichSide == 0) // top
+        {
+            float amount = this.top - other.bottom + 0.5f;
+            this.top += amount; // + 10;
+            this.bottom += amount;
+            vy = 0;
+            y += amount;
+            // Log.d("CENTER", playerRect + "");
+        }
+    }
 
 }

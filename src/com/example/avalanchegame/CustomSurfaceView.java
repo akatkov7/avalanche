@@ -126,7 +126,7 @@ public class CustomSurfaceView
 
         private long             lastTime        = System.currentTimeMillis();
 
-        private Random seededRandom;
+        private Random           seededRandom;
 
 
         // ----------------------------------------------------------
@@ -155,10 +155,9 @@ public class CustomSurfaceView
 
             boxes.add(testBlock);
 
-
-            //creates a seeded random object
-            //TODO fill this in with a real seed later
-            seededRandom = new Random((long)(Long.MAX_VALUE*Math.random()));
+            // creates a seeded random object
+            // TODO fill this in with a real seed later
+            seededRandom = new Random((long)(Long.MAX_VALUE * Math.random()));
         }
 
 
@@ -481,45 +480,42 @@ public class CustomSurfaceView
          */
         private void updateLogic()
         {
-            // Log.d("BOUNCE", "START "+player.getRect());
-            // Log.d("BOUNCE", "START "+testBlock);
-            // System.out.println(player.getRect().centerY());
             if (firstTime)
             {
                 Box ground = new Box(mCanvasWidth / 2, -5000, 10000);
                 ground.setVy(0);
                 boxes.add(ground);
                 generateInitialBoxes();
-// for (int i = 0; i < 5; i++) {
-// generateNextBox();
-// }
             }
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
-            //player.adjustPosition(30);
-            // Log.d("BOUNCE", "S1 "+player.getRect());
-            // Log.d("BOUNCE", "S1 "+testBlock);
-            // mBlockRect.offset(0, mCanvasHeight / 200);
 
-            long timeElapsed = lastTime - beginTime;
-
-            for (Box brock : boxes) {
-                brock.adjustPosition((int)(System.currentTimeMillis() - lastTime));
-
-                if (player.intersects(brock) > -1)
+            for (Box block : boxes)
+            {
+                block
+                    .adjustPosition((int)(System.currentTimeMillis() - lastTime));
+                for (Box possibleCollisionBlock : boxes)
                 {
-                    player.fixIntersection(brock, player.intersects(brock));
-                    // mBlockRect.bottom = mGrassRect.top;
-                    // mBlockRect.top = mBlockRect.bottom - 100;
+                    if (possibleCollisionBlock.isMoving())
+                    {
+                        int collisionIndicator =
+                            block.intersects(possibleCollisionBlock);
+                        block.fixIntersection(
+                            possibleCollisionBlock,
+                            collisionIndicator);
+                    }
+                }
+
+                // adjust block
+                int collisionIndicator = player.intersects(block);
+                if (collisionIndicator > -1)
+                {
+                    player.fixIntersection(block, collisionIndicator);
                     player.grounded = true;
-                    // System.out.println(player.getRect().centerY());
                 }
             }
 
             lastTime = System.currentTimeMillis();
-            // Log.d("BOUNCE", "END "+player.getRect());
-            // Log.d("BOUNCE", "END "+testBlock);
-            // Log.d("HIT", mBlockRect.flattenToString());
         }
 
 
