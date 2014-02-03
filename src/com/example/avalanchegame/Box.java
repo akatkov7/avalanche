@@ -1,5 +1,6 @@
 package com.example.avalanchegame;
 
+import android.util.Log;
 import android.graphics.Color;
 import android.graphics.Paint.Style;
 import android.graphics.Paint;
@@ -128,6 +129,17 @@ public class Box
         this.size = size;
         updateBounds();
     }
+
+    public void adjustPosition(int deltaT)
+    {
+        this.offset(0, vy * deltaT / 1000);
+    }
+
+    public boolean isMoving() {
+        return vy != 0;
+    }
+
+
 
 
 }

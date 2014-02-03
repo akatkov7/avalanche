@@ -193,7 +193,7 @@ public class CustomSurfaceView
                     }
                 }
 
-                Box box = new Box(x, width / 2, width);
+                Box box = new Box(x, width / 2 + 50, width);
                 boxes.add(box);
                 columns[i] = box;
             }
@@ -251,7 +251,7 @@ public class CustomSurfaceView
             // Create a new box on top of baseBox
             System.out.println("" + baseBox.top + " "
                 + (baseBox.getY() + baseBox.getSize() / 2));
-            float y = baseBox.top + width / 2;
+            float y = baseBox.top + width / 2 + 50;
             float x =
                 randInt(
                     (int)(baseBox.left - width / 2 + 1),
@@ -493,16 +493,17 @@ public class CustomSurfaceView
 // }
             }
             firstTime = false;
-            // player.adjustPosition((int)(System.currentTimeMillis() -
-// lastTime));
-            player.adjustPosition(30);
+            player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
+            //player.adjustPosition(30);
             // Log.d("BOUNCE", "S1 "+player.getRect());
             // Log.d("BOUNCE", "S1 "+testBlock);
             // mBlockRect.offset(0, mCanvasHeight / 200);
 
             long timeElapsed = lastTime - beginTime;
 
-            for (Box brock : boxes)
+            for (Box brock : boxes) {
+                brock.adjustPosition((int)(System.currentTimeMillis() - lastTime));
+
                 if (player.intersects(brock) > -1)
                 {
                     player.fixIntersection(brock, player.intersects(brock));
@@ -511,6 +512,7 @@ public class CustomSurfaceView
                     player.grounded = true;
                     // System.out.println(player.getRect().centerY());
                 }
+            }
 
             lastTime = System.currentTimeMillis();
             // Log.d("BOUNCE", "END "+player.getRect());
