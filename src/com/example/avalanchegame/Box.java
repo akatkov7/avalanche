@@ -37,6 +37,7 @@ public class Box
         outlinePaint = new Paint();
         outlinePaint.setColor(Color.BLACK);
         outlinePaint.setStyle(Style.STROKE);
+
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.avalanchegame;
 
+import android.util.Log;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;

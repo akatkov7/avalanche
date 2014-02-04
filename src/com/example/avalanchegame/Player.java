@@ -10,19 +10,24 @@ import android.util.Log;
 
 public class Player
 {
-    private RectF     playerRect;
-    private Paint     playerPaint;
-    private int       canvasWidth;
-    private int       canvasHeight;
-    private float     width;
-    private float     height;
-    private float     ay;
-    private float     ax;
-    private float     vy       = 0;
-    private float     vx       = 0;
-    private float     py;
-    private float     px;
-    protected boolean grounded = false;
+    private RectF       playerRect;
+    private Paint       playerPaint;
+    private int         canvasWidth;
+    private int         canvasHeight;
+    private float       width;
+    private float       height;
+    private float       ay;
+    private float       ax;
+    private float       vy                         = 0;
+    private float       vx                         = 0;
+    private float       py;
+    private float       px;
+    private boolean     grounded                   = false;
+    private boolean     canJumpFromLeft            = false;
+    private boolean     canJumpFromRight           = false;
+    private final float startingSideJumpVelocity   = 1000f;
+    private float       additionalSideJumpVelocity = 0f;
+    private float       jumpVelocity               = 1500f;
 
 
     public Player(RectF r, int cW, int cH)
@@ -79,6 +84,17 @@ public class Player
     }
 
 
+    /**
+     * This method is solely for determining whether or not the player has
+     * collided with anything. This method should not change anything about the
+     * state of the player or the RectF argument.
+     *
+     * @param collided
+     *            the rectangle that should be tested to see if it collides with
+     *            the player
+     * @return -1 for no collision, 0-4 for a collision on a side of the player,
+     *         starting with 0 at the top and going clockwise
+     */
     public int intersects(RectF collided)
     {
         int minimumIntersectIndex = -1;
@@ -94,19 +110,16 @@ public class Player
             {
                 minimumIntersectIndex = 2;
                 minimumIntersect = intersectBot;
-                // Log.d("INTERSECTS", "2 "+this.playerRect+" "+collided);
             }
             if (intersectRight > 0 && intersectRight < minimumIntersect)
             {
                 minimumIntersectIndex = 1;
                 minimumIntersect = intersectRight;
-                Log.d("INTERSECTS", "1 " + this.playerRect + " " + collided);
             }
             if (intersectLeft > 0 && intersectLeft < minimumIntersect)
             {
                 minimumIntersectIndex = 3;
                 minimumIntersect = intersectLeft;
-                Log.d("INTERSECTS", "3 " + this.playerRect + " " + collided);
             }
         }
         else if (playerRect.top < collided.top
@@ -120,25 +133,33 @@ public class Player
             {
                 minimumIntersectIndex = 0;
                 minimumIntersect = intersectBot;
-                Log.d("INTERSECTS", "0 " + this.playerRect + " " + collided);
             }
             if (intersectRight > 0 && intersectRight < minimumIntersect)
             {
                 minimumIntersectIndex = 1;
                 minimumIntersect = intersectRight;
-                Log.d("INTERSECTS", "1 " + this.playerRect + " " + collided);
             }
             if (intersectLeft > 0 && intersectLeft < minimumIntersect)
             {
                 minimumIntersectIndex = 3;
                 minimumIntersect = intersectLeft;
-                Log.d("INTERSECTS", "3 " + this.playerRect + " " + collided);
             }
         }
         return minimumIntersectIndex;
     }
 
 
+    /**
+     * This method should be called when the player collides with a box. It
+     * fixes the position of the player based on what side intersected, and then
+     * allows it to jump a direction accordingly.
+     *
+     * @param other
+     *            the RectF the player collided with
+     * @param whichSide
+     *            an integer indicating what side of the player collided. See
+     *            documentation for -intersects(RectF)
+     */
     public void fixIntersection(RectF other, int whichSide)
     {
         if (whichSide == 0) // top
@@ -154,7 +175,9 @@ public class Player
             playerRect.right = other.left - 0.5f;
             playerRect.left = playerRect.right - width;
             vx = 0;
+            vy = 0;
             px = playerRect.centerX();
+            canJumpFromRight = true;
             // Log.d("CENTER", playerRect + "");
         }
         else if (whichSide == 2) // bottom
@@ -163,6 +186,7 @@ public class Player
             playerRect.top = playerRect.bottom + height;
             vy = 0;
             py = playerRect.centerY();
+            grounded = true;
             // Log.d("CENTER", playerRect+"");
         }
         else if (whichSide == 3) // left
@@ -170,12 +194,22 @@ public class Player
             playerRect.left = other.right + 0.5f;
             playerRect.right = playerRect.left + width;
             vx = 0;
+            vy = 0;
             px = playerRect.centerX();
+            canJumpFromLeft = true;
             // Log.d("CENTER", playerRect + "");
         }
     }
 
 
+    /**
+     * Move the player based on the amount of time that passed since the last
+     * frame (for smooth movement)
+     *
+     * @param deltaT
+     *            the amount of time in milliseconds since the last time
+     *            adjustPosition was called
+     */
     public void adjustPosition(int deltaT)
     {
         vy += ay * (deltaT / 1000.0f);
@@ -184,9 +218,21 @@ public class Player
                 + (-ay * (deltaT / 1000.0f) * (deltaT / 1000.0f));
 
         // TODO: add a friction for ground stuff
-        float pxtemp = px + vx * (deltaT / 1000.0f);
-        if (pytemp > py)
-            grounded = false;
+        //add amount of sideJump from jumping
+        float pxtemp =
+            px + (vx + additionalSideJumpVelocity) * (deltaT / 1000.0f);
+        //TODO: decrement according to deltaT
+        if(additionalSideJumpVelocity > 0 || additionalSideJumpVelocity < 0) {
+            float adjustmentAmount = startingSideJumpVelocity*deltaT/100f;
+            if(Math.abs(additionalSideJumpVelocity) < adjustmentAmount)
+                additionalSideJumpVelocity = 0;
+            else if(additionalSideJumpVelocity > 0)
+                additionalSideJumpVelocity -= adjustmentAmount;
+            else
+                additionalSideJumpVelocity += adjustmentAmount;
+        }
+// if (pytemp > py)
+// grounded = false;
         playerRect.offset(pxtemp - px, pytemp - py);
         if (playerRect.left < 0)
         {
@@ -202,18 +248,71 @@ public class Player
         }
         py = playerRect.centerY();
         px = playerRect.centerX();
+        // TODO: test this line.
+        // set grounded every frame, update via a collision. otherwise, you can
+        // run off a block then jump (which shouldn't be a thing)
+    }
+
+    public void setNotGrounded() {
+        grounded = false;
+        canJumpFromLeft = false;
+        canJumpFromRight = false;
+    }
+
+    public void setXVelocity(float dvx)
+    {
+        vx = dvx;
     }
 
 
-    public void setXVelocity(float fok)
+    public void tryToJump()
     {
-        vx = -100 * fok;
+        if (grounded)
+        {
+            jump();
+        }
+        else if (canJumpFromLeft)
+        {
+            jumpFromLeft();
+        }
+        else if (canJumpFromRight)
+        {
+            jumpFromRight();
+        }
     }
 
 
-    public void jump()
+    private void jumpFromLeft()
     {
-        vy += 1500;
-        // playerRect.offset(0, -canvasHeight / 5);
+        vy += jumpVelocity;
+        additionalSideJumpVelocity = startingSideJumpVelocity;
+        setNotGrounded();
+    }
+
+
+    private void jumpFromRight()
+    {
+        vy += jumpVelocity;
+        additionalSideJumpVelocity = -startingSideJumpVelocity;
+        setNotGrounded();
+    }
+
+
+    private void jump()
+    {
+        vy += jumpVelocity;
+        setNotGrounded();
+    }
+
+
+    public boolean isGrounded()
+    {
+        return grounded;
+    }
+
+
+    public void setGrounded(boolean newState)
+    {
+        grounded = newState;
     }
 }

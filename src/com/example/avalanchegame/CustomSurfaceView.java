@@ -45,19 +45,19 @@ public class CustomSurfaceView
         /*
          * These are used for frame timing
          */
-        private final static int MAX_FPS         = 50;
-        private final static int MAX_FRAME_SKIPS = 5;
-        private final static int FRAME_PERIOD    = 1000 / MAX_FPS;
+        private final static int MAX_FPS                  = 50;
+        private final static int MAX_FRAME_SKIPS          = 5;
+        private final static int FRAME_PERIOD             = 1000 / MAX_FPS;
 
         /*
          * State-tracking constants These are from the game i copied this from,
          * should probably make this an enum if we use it
          */
-        public static final int  STATE_LOSE      = 1;
-        public static final int  STATE_PAUSE     = 2;
-        public static final int  STATE_READY     = 3;
-        public static final int  STATE_RUNNING   = 4;
-        public static final int  STATE_WIN       = 5;
+        public static final int  STATE_LOSE               = 1;
+        public static final int  STATE_PAUSE              = 2;
+        public static final int  STATE_READY              = 3;
+        public static final int  STATE_RUNNING            = 4;
+        public static final int  STATE_WIN                = 5;
 
         /** The drawable to use as the background of the animation canvas */
         private Bitmap           mBackgroundImage;
@@ -67,64 +67,79 @@ public class CustomSurfaceView
          *
          * @see #setSurfaceSize
          */
-        private int              mCanvasHeight   = 1920;                      // 1;
+        private int              mCanvasHeight            = 1920;                      // 1;
 
         /**
          * Current width of the surface/canvas.
          *
          * @see #setSurfaceSize
          */
-        private int              mCanvasWidth    = 1080;                      // 1;
+        private int              mCanvasWidth             = 1080;                      // 1;
 
         /** the current scroll offset */
-        private int              scrollX         = 0;
+        private int              scrollX                  = 0;
 
         /** The state of the game. One of READY, RUNNING, PAUSE, LOSE, or WIN */
         private int              mMode;
 
         /** Indicate whether the surface has been created & is ready to draw */
-        private boolean          mRun            = false;
+        private boolean          mRun                     = false;
 
         /** Prevents multiple threads from accessing the canvas */
-        private final Object     mRunLock        = new Object();
+        private final Object     mRunLock                 = new Object();
 
         /** Handle to the surface manager object we interact with */
         // this is how we get the canvas
         private SurfaceHolder    mSurfaceHolder;
 
         /** Temporary green paint for grass */
-        private Paint            mGrassPaint     = new Paint();
+        private Paint            mGrassPaint              = new Paint();
         /** Temporary rect for the grass */
-        private RectF            mGrassRect      = new RectF(
-                                                     0,
-                                                     (int)(.8 * mCanvasHeight),
-                                                     mCanvasWidth,
-                                                     mCanvasHeight);
+        private RectF            mGrassRect               =
+                                                              new RectF(
+                                                                  0,
+                                                                  (int)(.8 * mCanvasHeight),
+                                                                  mCanvasWidth,
+                                                                  mCanvasHeight);
 
-        private Paint            mBlackPaint     = new Paint();
-        private Player           player          = new Player(new RectF(
-                                                     mCanvasWidth / 2 - 50,
-                                                     900,
-                                                     mCanvasWidth / 2 + 50,
-                                                     800), 1080, 1920);
-        private List<Box>        boxes           = new ArrayList<Box>();
+        private Paint            mBlackPaint              = new Paint();
+        private Player           player                   =
+                                                              new Player(
+                                                                  new RectF(
+                                                                      mCanvasWidth / 2 - 50,
+                                                                      900,
+                                                                      mCanvasWidth / 2 + 50,
+                                                                      800),
+                                                                  1080,
+                                                                  1920);
+        private List<Box>        boxes                    =
+                                                              new ArrayList<Box>();
         /**
          * Defines the N predominant column structures that govern where new
          * boxes spawn.
          */
-        private Box[]            columns         = new Box[4];
+        private Box[]            columns                  = new Box[6];
 
-        private int              minWidth        = 2 * (mCanvasWidth / 30);   // Even
+        private int              minWidth                 =
+                                                              2 * (mCanvasWidth / 30); // Even
 // number
-        private int              maxWidth        = 2 * (mCanvasWidth / 15);   // Even
+        private int              maxWidth                 =
+                                                              2 * (mCanvasWidth / 15); // Even
 // number
 
-        private Box              testBlock       = new Box(
-                                                     mCanvasWidth / 2,
-                                                     mCanvasHeight / 2 - 500,
-                                                     200);
+        private Box              testBlock                =
+                                                              new Box(
+                                                                  mCanvasWidth / 2,
+                                                                  mCanvasHeight / 2 - 500,
+                                                                  200);
 
-        private long             lastTime        = System.currentTimeMillis();
+        private long             lastTime                 =
+                                                              System
+                                                                  .currentTimeMillis();
+
+        // the amount the accelerometer value should be multiplied by before
+        // being passed to the player object
+        private final int        accelerometerCoefficient = -100;
 
         private Random           seededRandom;
 
@@ -169,33 +184,67 @@ public class CustomSurfaceView
 
         public void generateInitialBoxes()
         {
-
-            for (int i = 0; i < columns.length; i++)
+            float spawnHeight = mCanvasHeight;
+            for (int heightIncrements = 0; heightIncrements < 50; heightIncrements++)
             {
-                int width = randInt(minWidth, maxWidth) * 2;
-                int x = randInt(0, mCanvasWidth);
-                boolean collisions = true;
-                while (collisions)
+                int amountPerHeight = seededRandom.nextInt(2);
+                for (int i = 0; i < amountPerHeight; i++)
                 {
-                    collisions = false;
-                    for (Box rect : columns)
+                    int width = randInt(minWidth, maxWidth) * 2;
+                    int x = randInt(0, mCanvasWidth);
+                    boolean collisions = true;
+                    Box box;
+                    do
                     {
-                        if (rect == null)
-                            continue;
-                        if (x + width / 2 > rect.left
-                            && x - width / 2 < rect.right)
+                        box = new Box(x, spawnHeight, width);
+                        collisions = false;
+                        for (Box block : boxes)
                         {
-                            x = randInt(0, mCanvasWidth);
-                            collisions = true;
-                            break;
+                            if(box.intersects(block) > -1)
+                            {
+                                x = randInt(0, mCanvasWidth);
+                                collisions = true;
+                                break;
+                            }
                         }
                     }
+                    while(collisions);
+                    boxes.add(box);
                 }
+                spawnHeight +=
+                    randInt(mCanvasHeight / 3, 3 * mCanvasHeight / 4);
 
-                Box box = new Box(x, width / 2 + 50, width);
-                boxes.add(box);
-                columns[i] = box;
             }
+// for (int i = 0; i < columns.length; i++)
+// {
+// int width = randInt(minWidth, maxWidth) * 2;
+// int x = randInt(0, mCanvasWidth);
+// boolean collisions = true;
+// while (collisions)
+// {
+// collisions = false;
+// for (Box rect : columns)
+// {
+// if (rect == null)
+// continue;
+// if (x + width / 2 > rect.left
+// && x - width / 2 < rect.right)
+// {
+// x = randInt(0, mCanvasWidth);
+// collisions = true;
+// break;
+// }
+// }
+// }
+//
+// Box box =
+// new Box(
+// x,
+// mCanvasWidth * 2.0f,
+// width);
+// boxes.add(box);
+// columns[i] = box;
+// }
         }
 
 
@@ -366,6 +415,9 @@ public class CustomSurfaceView
                                     sleepTime += FRAME_PERIOD;
                                     framesSkipped++;
                                 }
+                                Log.d(
+                                    "asdf",
+                                    "thread is actually fucking running");
                             }
                         }
                     }
@@ -475,9 +527,6 @@ public class CustomSurfaceView
         boolean firstTime = true;
 
 
-        /**
-         * TODO: FILL THIS IN WITH GAME LOGIC. (move, attack, etc)
-         */
         private void updateLogic()
         {
             if (firstTime)
@@ -489,7 +538,7 @@ public class CustomSurfaceView
             }
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
-
+            player.setNotGrounded();
             for (Box block : boxes)
             {
                 block
@@ -511,7 +560,7 @@ public class CustomSurfaceView
                 if (collisionIndicator > -1)
                 {
                     player.fixIntersection(block, collisionIndicator);
-                    player.grounded = true;
+                    // fix grounding within player
                 }
             }
 
@@ -563,13 +612,7 @@ public class CustomSurfaceView
                 switch (e.getAction())
                 {
                     case MotionEvent.ACTION_DOWN:
-                        Log.d("onTouch", "touch down");
-                        if (player.grounded)
-                        {
-                            player.jump();
-                            // mBlockRect.offset(0, -mCanvasHeight / 15);
-                            player.grounded = false;
-                        }
+                        player.tryToJump();
                         break;
                 }
                 return true;
@@ -579,8 +622,7 @@ public class CustomSurfaceView
 
         public void onSensorChanged(SensorEvent event)
         {
-            // TODO Auto-generated method stub
-            player.setXVelocity(event.values[0]);
+            player.setXVelocity(accelerometerCoefficient * event.values[0]);
         }
     }
 
