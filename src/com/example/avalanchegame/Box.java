@@ -62,30 +62,35 @@ public class Box
 
     public void draw(Canvas c, float playerY)
     {
+//        float ground = c.getHeight() * 0.8f;
+//        float cutoff = c.getHeight() * 0.5f;
+//
+//        RectF localBox;
+//
+//        /*
+//         * The function to convert from global to local coordinates not
+//         * accounting for camera shift is l(y) = groundY - y. The playerY passed
+//         * in is in local coordinates, so it should first be converted to global
+//         * coordinates.
+//         */
+//        if (playerY < cutoff)
+//        {
+//            localBox = new RectF(left, ground - top, right, ground - bottom);
+//        }
+//        else
+//        {
+//            localBox =
+//                new RectF(
+//                    left,
+//                    ground - (top - (playerY - cutoff)),
+//                    right,
+//                    ground - (bottom - (playerY - cutoff)));
+//        }
+
         float ground = c.getHeight() * 0.8f;
         float cutoff = c.getHeight() * 0.5f;
-
-        RectF localBox;
-
-        /*
-         * The function to convert from global to local coordinates not
-         * accounting for camera shift is l(y) = groundY - y. The playerY passed
-         * in is in local coordinates, so it should first be converted to global
-         * coordinates.
-         */
-        if (playerY < cutoff)
-        {
-            localBox = new RectF(left, ground - top, right, ground - bottom);
-        }
-        else
-        {
-            localBox =
-                new RectF(
-                    left,
-                    ground - (top - (playerY - cutoff)),
-                    right,
-                    ground - (bottom - (playerY - cutoff)));
-        }
+        RectF localBox = new RectF(left, ground - top, right, ground - bottom);
+        localBox.offset(0, playerY - (ground - cutoff));
         c.drawRect(localBox, fillPaint);
         c.drawRect(localBox, outlinePaint);
     }

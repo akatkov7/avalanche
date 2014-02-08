@@ -49,30 +49,41 @@ public class Player
 
     public void draw(Canvas c)
     {
+// float ground = c.getHeight() * 0.8f;
+// float cutoff = c.getHeight() * 0.5f;
+//
+// RectF localRect;
+// if (playerRect.bottom < cutoff)
+// {
+// localRect =
+// new RectF(
+// playerRect.left,
+// ground - playerRect.top,
+// playerRect.right,
+// ground - playerRect.bottom);
+// }
+// else
+// {
+// localRect =
+// new RectF(
+// playerRect.left,
+// ground - playerRect.top - (playerRect.bottom - cutoff - ground),
+// playerRect.right,
+// ground - playerRect.bottom - (playerRect.bottom - cutoff - ground));
+// System.out.println(localRect + "");
+// }
+//
+// c.drawRect(localRect, playerPaint);
+
         float ground = c.getHeight() * 0.8f;
         float cutoff = c.getHeight() * 0.5f;
-
-        RectF localRect;
-        if (playerRect.bottom < cutoff)
-        {
-            localRect =
-                new RectF(
-                    playerRect.left,
-                    ground - playerRect.top,
-                    playerRect.right,
-                    ground - playerRect.bottom);
-        }
-        else
-        {
-            localRect =
-                new RectF(
-                    playerRect.left,
-                    ground - playerRect.top - (playerRect.bottom - cutoff),
-                    playerRect.right,
-                    ground - playerRect.bottom - (playerRect.bottom - cutoff));
-            System.out.println(localRect + "");
-        }
-
+        RectF localRect =
+            new RectF(
+                playerRect.left,
+                ground - playerRect.top,
+                playerRect.right,
+                ground - playerRect.bottom);
+        localRect.offset(0, playerRect.bottom - (ground - cutoff));
         c.drawRect(localRect, playerPaint);
     }
 
