@@ -21,7 +21,20 @@ public class Box
     private Paint outlinePaint;
 
 
-    public Box(float x, float y, float size)
+    /**
+     * Constructor for the box class
+     *
+     * @param x
+     *            the center x of the box
+     * @param y
+     *            the center y of the box
+     * @param size
+     *            the length and the width of the box
+     * @param initVY
+     *            a negative float that dictates how fast the box falls (-200f
+     *            is a decent speed)
+     */
+    public Box(float x, float y, float size, float initVY)
     {
         super(x - size / 2, y + size / 2, x + size / 2, y - size / 2);
 
@@ -29,7 +42,7 @@ public class Box
         this.y = y;
         this.size = size;
 
-        setVy(-200f);
+        setVy(initVY);
 
         fillPaint = new Paint();
         fillPaint.setColor(Color.BLUE);
@@ -159,7 +172,7 @@ public class Box
     public void adjustPosition(int deltaT)
     {
         this.offset(0, vy * deltaT / 1000);
-        y += vy*deltaT / 1000;
+        y += vy * deltaT / 1000;
     }
 
 
@@ -174,18 +187,21 @@ public class Box
         int minimumIntersectIndex = -1;
         if (this.bottom < collided.top
             && this.bottom > collided.bottom
-            && ((this.right < collided.right && this.right > collided.left) || (this.left > collided.left && this.left < collided.right)))
+            && ((this.right < collided.right && this.right > collided.left) || (this.left > collided.left && this.left < collided.right) || (this.right > collided.right && this.left < collided.left)))
         {
             minimumIntersectIndex = 2;
         }
-//        else if (this.top < collided.top
-//            && this.top > collided.bottom
-//            && ((this.right < collided.right && this.right > collided.left) || (this.left > collided.left && this.left < collided.right)))
-//        {
-//            minimumIntersectIndex = 0;
-//        }
+// else if (this.top < collided.top
+// && this.top > collided.bottom
+// && ((this.right < collided.right && this.right > collided.left) || (this.left
+// > collided.left && this.left < collided.right)))
+// {
+// minimumIntersectIndex = 0;
+// }
         return minimumIntersectIndex;
     }
+
+
     public void fixIntersection(RectF other, int whichSide)
     {
         if (whichSide == 2) // bottom
