@@ -26,7 +26,7 @@ public class Player
     private boolean     grounded                   = false;
     private boolean     canJumpFromLeft            = false;
     private boolean     canJumpFromRight           = false;
-    private final float startingSideJumpVelocity   = 1000f;
+    private final float startingSideJumpVelocity   = 750;
     private float       additionalSideJumpVelocity = 0f;
     private float       jumpVelocity               = 1500f;
     private boolean     midJump                    = false;
@@ -188,7 +188,7 @@ public class Player
         {
             playerRect.top = other.bottom - 0.5f; // + 10;
             playerRect.bottom = playerRect.top - height;
-            vy = -100f;
+            vy = -canvasHeight / 4f;
             py = playerRect.centerY();
             // Log.d("CENTER", playerRect + "");
         }
@@ -272,7 +272,7 @@ public class Player
         // TODO: decrement according to deltaT
         if (additionalSideJumpVelocity > 0 || additionalSideJumpVelocity < 0)
         {
-            float adjustmentAmount = startingSideJumpVelocity * deltaT / 200f;
+            float adjustmentAmount = startingSideJumpVelocity * deltaT / 250f;
             if (Math.abs(additionalSideJumpVelocity) < adjustmentAmount)
                 additionalSideJumpVelocity = 0;
             else if (additionalSideJumpVelocity > 0)
@@ -369,5 +369,17 @@ public class Player
     public boolean isGrounded()
     {
         return grounded;
+    }
+
+
+    public float getY()
+    {
+        return py;
+    }
+
+
+    public float getX()
+    {
+        return px;
     }
 }
