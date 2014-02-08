@@ -189,7 +189,8 @@ public class Player
             vx = 0;
             if (!midJump)
             {
-                vy = 0;
+                vx = 20.0f;
+                vy = -230.0f;
                 px = playerRect.centerX();
                 canJumpFromRight = true;
             }
@@ -212,7 +213,8 @@ public class Player
             vx = 0;
             if (!midJump)
             {
-                vy = 0;
+                vx = -20.0f;
+                vy = -230.0f;
                 px = playerRect.centerX();
                 canJumpFromLeft = true;
             }

@@ -168,7 +168,6 @@ public class CustomSurfaceView
                 seededRandom.nextFloat() * mCanvasHeight / 2 + mCanvasHeight
                     / 2)
             {
-                Log.d("ass", spawnHeight + "");
                 int amountPerHeight = seededRandom.nextInt(2) + 1;
                 for (int i = 0; i < amountPerHeight; i++)
                 {
@@ -182,12 +181,10 @@ public class CustomSurfaceView
                         collisions = false;
                         for (Box block : boxes)
                         {
-                            if (box.intersects(block) > -1)
+                            int temp = box.intersects(block);
+                            if (temp > -1)
                             {
-                                Log.d("lawl", "somehow collided");
-                                x = randInt(0, mCanvasWidth);
-                                collisions = true;
-                                break;
+                                box.fixIntersection(block, temp);
                             }
                         }
                     }
@@ -395,9 +392,6 @@ public class CustomSurfaceView
                                     sleepTime += FRAME_PERIOD;
                                     framesSkipped++;
                                 }
-                                Log.d(
-                                    "asdf",
-                                    "thread is actually fucking running");
                             }
                         }
                     }
