@@ -276,20 +276,24 @@ public class Player
     }
 
 
-    public void tryToJump()
+    public boolean tryToJump()
     {
         if (grounded)
         {
             jump();
+            return true;
         }
         else if (canJumpFromLeft)
         {
             jumpFromLeft();
+            return true;
         }
         else if (canJumpFromRight)
         {
             jumpFromRight();
+            return true;
         }
+        return false;
     }
 
 
@@ -322,11 +326,5 @@ public class Player
     public boolean isGrounded()
     {
         return grounded;
-    }
-
-
-    public void setGrounded(boolean newState)
-    {
-        grounded = newState;
     }
 }
