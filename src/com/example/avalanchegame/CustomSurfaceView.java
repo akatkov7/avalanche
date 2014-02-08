@@ -506,8 +506,8 @@ public class CustomSurfaceView
                 mBlackPaint.setColor(Color.BLACK);
                 mBlackPaint.setStyle(Style.FILL);
 
-                boxes.add(testBlock);
-                boxes.add(testBlock2);
+                // boxes.add(testBlock);
+                // boxes.add(testBlock2);
             }
         }
 

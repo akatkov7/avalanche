@@ -22,6 +22,7 @@ public class Player
     private float       vx                         = 0;
     private float       py;
     private float       px;
+    private boolean     sideSwitched               = false;
     private boolean     grounded                   = false;
     private boolean     canJumpFromLeft            = false;
     private boolean     canJumpFromRight           = false;
@@ -133,6 +134,10 @@ public class Player
                 minimumIntersectIndex = 3;
                 minimumIntersect = intersectLeft;
             }
+            if ((intersectRight > 0 || intersectLeft > 0) && sideSwitched)
+            {
+                minimumIntersectIndex = 4;
+            }
         }
         else if (playerRect.top < collided.top
             && playerRect.top > collided.bottom
@@ -156,7 +161,12 @@ public class Player
                 minimumIntersectIndex = 3;
                 minimumIntersect = intersectLeft;
             }
+            if ((intersectRight > 0 || intersectLeft > 0) && sideSwitched)
+            {
+                minimumIntersectIndex = 4;
+            }
         }
+        sideSwitched = false;
         return minimumIntersectIndex;
     }
 
@@ -218,6 +228,21 @@ public class Player
             }
             // Log.d("CENTER", playerRect + "");
         }
+        else if (whichSide == 4) // switched side and collided
+        {
+            if (playerRect.right > canvasWidth)
+            {
+                System.out.println("IM FIXING 1 SHIT");
+                playerRect.left = -width / 2;
+                playerRect.right = playerRect.left + width;
+            }
+            else if (playerRect.left < 0)
+            {
+                System.out.println("IM FIXING 2 SHIT");
+                playerRect.right = canvasWidth + width / 2;
+                playerRect.left = playerRect.right - width;
+            }
+        }
     }
 
 
@@ -256,17 +281,19 @@ public class Player
 // if (pytemp > py)
 // grounded = false;
         playerRect.offset(pxtemp - px, pytemp - py);
-        if (playerRect.left < 0)
+        if (px < 0)
         {
             Log.d("OFF SCREEN", "YAYA");
-            playerRect.right = canvasWidth;
+            playerRect.right = canvasWidth + width / 2;
             playerRect.left = playerRect.right - width;
+            sideSwitched = true;
         }
-        else if (playerRect.right > canvasWidth)
+        else if (px > canvasWidth)
         {
             Log.d("OFF SCREEN", "YAYA");
-            playerRect.left = 0;
+            playerRect.left = -width / 2;
             playerRect.right = playerRect.left + width;
+            sideSwitched = true;
         }
         py = playerRect.centerY();
         px = playerRect.centerX();
