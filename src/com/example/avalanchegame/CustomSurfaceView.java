@@ -131,7 +131,9 @@ public class CustomSurfaceView
                                                               new Box(
                                                                   mCanvasWidth / 2,
                                                                   mCanvasHeight / 2 - 500,
-                                                                  200);
+                                                                  200,
+                                                                  0);
+        private Box testBlock2 = new Box(mCanvasWidth/2, mCanvasHeight/2, 300, -50f);
 
         private long             lastTime                 =
                                                               System
@@ -142,6 +144,8 @@ public class CustomSurfaceView
         private final int        accelerometerCoefficient = -100;
 
         private Random           seededRandom;
+
+        private float            boxFallSpeed             = -200f;
 
 
         // ----------------------------------------------------------
@@ -169,6 +173,7 @@ public class CustomSurfaceView
             mBlackPaint.setStyle(Style.FILL);
 
             boxes.add(testBlock);
+            boxes.add(testBlock2);
 
             // creates a seeded random object
             // TODO fill this in with a real seed later
@@ -182,12 +187,15 @@ public class CustomSurfaceView
         }
 
 
-        public void generateInitialBoxes()
+        public void generateBoxes(float startingHeight, float additionalHeight)
         {
-            float spawnHeight = mCanvasHeight;
-            for (int heightIncrements = 0; heightIncrements < 50; heightIncrements++)
+            for (float spawnHeight = startingHeight; spawnHeight <= startingHeight
+                + additionalHeight; spawnHeight +=
+                seededRandom.nextFloat() * mCanvasHeight / 2 + mCanvasHeight
+                    / 2)
             {
-                int amountPerHeight = seededRandom.nextInt(2);
+                Log.d("ass", spawnHeight+"");
+                int amountPerHeight = seededRandom.nextInt(2)+1;
                 for (int i = 0; i < amountPerHeight; i++)
                 {
                     int width = randInt(minWidth, maxWidth) * 2;
@@ -196,24 +204,22 @@ public class CustomSurfaceView
                     Box box;
                     do
                     {
-                        box = new Box(x, spawnHeight, width);
+                        box = new Box(x, spawnHeight, width, boxFallSpeed);
                         collisions = false;
                         for (Box block : boxes)
                         {
-                            if(box.intersects(block) > -1)
+                            if (box.intersects(block) > -1)
                             {
+                                Log.d("lawl", "somehow collided");
                                 x = randInt(0, mCanvasWidth);
                                 collisions = true;
                                 break;
                             }
                         }
                     }
-                    while(collisions);
+                    while (collisions);
                     boxes.add(box);
                 }
-                spawnHeight +=
-                    randInt(mCanvasHeight / 3, 3 * mCanvasHeight / 4);
-
             }
 // for (int i = 0; i < columns.length; i++)
 // {
@@ -304,7 +310,7 @@ public class CustomSurfaceView
                 randInt(
                     (int)(baseBox.left - width / 2 + 1),
                     (int)(baseBox.right + width / 2 - 1));
-            Box newBox = new Box(x, y, width);
+            Box newBox = new Box(x, y, width, boxFallSpeed);
 
             // Add this box to the list of boxes & replace baseBox as the column
 // head
@@ -531,10 +537,9 @@ public class CustomSurfaceView
         {
             if (firstTime)
             {
-                Box ground = new Box(mCanvasWidth / 2, -5000, 10000);
-                ground.setVy(0);
+                Box ground = new Box(mCanvasWidth / 2, -5000, 10000, 0);
                 boxes.add(ground);
-                generateInitialBoxes();
+                generateBoxes(mCanvasHeight, mCanvasHeight*40);
             }
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
