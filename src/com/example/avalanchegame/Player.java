@@ -28,6 +28,7 @@ public class Player
     private final float startingSideJumpVelocity   = 1000f;
     private float       additionalSideJumpVelocity = 0f;
     private float       jumpVelocity               = 1500f;
+    private boolean     midJump                    = false;
 
 
     public Player(RectF r, int cW, int cH)
@@ -65,11 +66,9 @@ public class Player
         else
         {
             localRect =
-                new RectF(
-                    playerRect.left,
-                    ground - playerRect.top - (playerRect.bottom - cutoff),
-                    playerRect.right,
-                    ground - playerRect.bottom - (playerRect.bottom - cutoff));
+                new RectF(playerRect.left, ground - playerRect.top
+                    - (playerRect.bottom - cutoff), playerRect.right, ground
+                    - playerRect.bottom - (playerRect.bottom - cutoff));
             System.out.println(localRect + "");
         }
 
@@ -165,7 +164,7 @@ public class Player
         {
             playerRect.top = other.bottom - 0.5f; // + 10;
             playerRect.bottom = playerRect.top - height;
-            vy = 0;
+            vy = -100f;
             py = playerRect.centerY();
             // Log.d("CENTER", playerRect + "");
         }
@@ -174,9 +173,12 @@ public class Player
             playerRect.right = other.left - 0.5f;
             playerRect.left = playerRect.right - width;
             vx = 0;
-            vy = 0;
-            px = playerRect.centerX();
-            canJumpFromRight = true;
+            if (!midJump)
+            {
+                vy = 0;
+                px = playerRect.centerX();
+                canJumpFromRight = true;
+            }
             // Log.d("CENTER", playerRect + "");
         }
         else if (whichSide == 2) // bottom
@@ -185,6 +187,7 @@ public class Player
             playerRect.top = playerRect.bottom + height;
             vy = 0;
             py = playerRect.centerY();
+            midJump = false;
             grounded = true;
             // Log.d("CENTER", playerRect+"");
         }
@@ -193,9 +196,12 @@ public class Player
             playerRect.left = other.right + 0.5f;
             playerRect.right = playerRect.left + width;
             vx = 0;
-            vy = 0;
-            px = playerRect.centerX();
-            canJumpFromLeft = true;
+            if (!midJump)
+            {
+                vy = 0;
+                px = playerRect.centerX();
+                canJumpFromLeft = true;
+            }
             // Log.d("CENTER", playerRect + "");
         }
     }
@@ -212,6 +218,8 @@ public class Player
     public void adjustPosition(int deltaT)
     {
         vy += ay * (deltaT / 1000.0f);
+        if (midJump && vy <= 0)
+            midJump = false;
         float pytemp =
             py + vy * (deltaT / 1000.0f)
                 + (-ay * (deltaT / 1000.0f) * (deltaT / 1000.0f));
@@ -288,6 +296,7 @@ public class Player
     private void jumpFromLeft()
     {
         vy += jumpVelocity;
+        midJump = true;
         additionalSideJumpVelocity = startingSideJumpVelocity;
         setNotGrounded();
     }
@@ -296,6 +305,7 @@ public class Player
     private void jumpFromRight()
     {
         vy += jumpVelocity;
+        midJump = true;
         additionalSideJumpVelocity = -startingSideJumpVelocity;
         setNotGrounded();
     }
@@ -304,6 +314,7 @@ public class Player
     private void jump()
     {
         vy += jumpVelocity;
+        midJump = true;
         setNotGrounded();
     }
 
