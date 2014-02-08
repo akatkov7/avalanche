@@ -104,10 +104,14 @@ public class CustomSurfaceView
 
         private int              minWidth;
 
-
         private int              maxWidth;
         private Box              testBlock;
-        private Box testBlock2 = new Box(mCanvasWidth/2, mCanvasHeight/2, 300, -50f);
+        private Box              testBlock2               =
+                                                              new Box(
+                                                                  mCanvasWidth / 2,
+                                                                  mCanvasHeight / 2,
+                                                                  300,
+                                                                  -50f);
 
         private long             lastTime                 =
                                                               System
@@ -120,6 +124,8 @@ public class CustomSurfaceView
         private Random           seededRandom;
 
         private float            boxFallSpeed             = -200f;
+
+        private boolean          triedToJump              = false;
 
 
         // ----------------------------------------------------------
@@ -162,8 +168,8 @@ public class CustomSurfaceView
                 seededRandom.nextFloat() * mCanvasHeight / 2 + mCanvasHeight
                     / 2)
             {
-                Log.d("ass", spawnHeight+"");
-                int amountPerHeight = seededRandom.nextInt(2)+1;
+                Log.d("ass", spawnHeight + "");
+                int amountPerHeight = seededRandom.nextInt(2) + 1;
                 for (int i = 0; i < amountPerHeight; i++)
                 {
                     int width = randInt(minWidth, maxWidth) * 2;
@@ -527,7 +533,7 @@ public class CustomSurfaceView
             {
                 Box ground = new Box(mCanvasWidth / 2, -5000, 10000, 0);
                 boxes.add(ground);
-                generateBoxes(mCanvasHeight, mCanvasHeight*40);
+                generateBoxes(mCanvasHeight, mCanvasHeight * 40);
             }
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
@@ -556,6 +562,9 @@ public class CustomSurfaceView
                     // fix grounding within player
                 }
             }
+            if (triedToJump)
+                player.tryToJump();
+            triedToJump = false;
 
             lastTime = System.currentTimeMillis();
         }
@@ -600,16 +609,16 @@ public class CustomSurfaceView
          */
         public boolean onTouchEvent(MotionEvent e)
         {
-            synchronized (mSurfaceHolder)
-            {
+            //synchronized (mSurfaceHolder)
+            //{
                 switch (e.getAction())
                 {
                     case MotionEvent.ACTION_DOWN:
-                        player.tryToJump();
-                        break;
+                            triedToJump = !player.tryToJump();
+                            break;
                 }
                 return true;
-            }
+            //}
         }
 
 

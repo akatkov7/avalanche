@@ -192,7 +192,8 @@ public class Box
         int minimumIntersectIndex = -1;
         if (this.bottom < collided.top
             && this.bottom > collided.bottom
-            && ((this.right < collided.right && this.right > collided.left) || (this.left > collided.left && this.left < collided.right) || (this.right > collided.right && this.left < collided.left)))
+            && ((this.right < collided.right && this.right > collided.left)
+                || (this.left > collided.left && this.left < collided.right) || (this.right > collided.right && this.left < collided.left)))
         {
             minimumIntersectIndex = 2;
         }
