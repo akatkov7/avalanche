@@ -174,21 +174,17 @@ public class CustomSurfaceView
                     int width = randInt(minWidth, maxWidth) * 2;
                     int x = randInt(0, mCanvasWidth);
                     boolean collisions = true;
-                    Box box;
-                    do
+                    Box box = new Box(x, spawnHeight, width, boxFallSpeed);
+                    collisions = false;
+                    for (Box block : boxes)
                     {
-                        box = new Box(x, spawnHeight, width, boxFallSpeed);
-                        collisions = false;
-                        for (Box block : boxes)
+                        int temp = box.intersects(block);
+                        if (temp > -1)
                         {
-                            int temp = box.intersects(block);
-                            if (temp > -1)
-                            {
-                                box.fixIntersection(block, temp);
-                            }
+                            Log.d("asdf", spawnHeight+"INTERSECTION");
+                            box.fixIntersection(block, temp);
                         }
                     }
-                    while (collisions);
                     boxes.add(box);
                 }
             }
@@ -603,16 +599,16 @@ public class CustomSurfaceView
          */
         public boolean onTouchEvent(MotionEvent e)
         {
-            //synchronized (mSurfaceHolder)
-            //{
-                switch (e.getAction())
-                {
-                    case MotionEvent.ACTION_DOWN:
-                            triedToJump = !player.tryToJump();
-                            break;
-                }
-                return true;
-            //}
+            // synchronized (mSurfaceHolder)
+            // {
+            switch (e.getAction())
+            {
+                case MotionEvent.ACTION_DOWN:
+                    triedToJump = !player.tryToJump();
+                    break;
+            }
+            return true;
+            // }
         }
 
 

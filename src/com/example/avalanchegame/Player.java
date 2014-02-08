@@ -247,7 +247,7 @@ public class Player
         // TODO: decrement according to deltaT
         if (additionalSideJumpVelocity > 0 || additionalSideJumpVelocity < 0)
         {
-            float adjustmentAmount = startingSideJumpVelocity * deltaT / 100f;
+            float adjustmentAmount = startingSideJumpVelocity * deltaT / 200f;
             if (Math.abs(additionalSideJumpVelocity) < adjustmentAmount)
                 additionalSideJumpVelocity = 0;
             else if (additionalSideJumpVelocity > 0)
