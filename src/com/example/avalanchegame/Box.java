@@ -29,7 +29,7 @@ public class Box
         this.y = y;
         this.size = size;
 
-        setVy(-50f);
+        setVy(-200f);
 
         fillPaint = new Paint();
         fillPaint.setColor(Color.BLUE);

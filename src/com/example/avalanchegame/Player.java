@@ -64,13 +64,12 @@ public class Player
         }
         else
         {
-            Log.d("CUTOFF", "GREATER THAN");
             localRect =
                 new RectF(
                     playerRect.left,
-                    ground - (playerRect.top - cutoff),
+                    ground - playerRect.top - (playerRect.bottom - cutoff),
                     playerRect.right,
-                    ground - (playerRect.bottom - cutoff));
+                    ground - playerRect.bottom - (playerRect.bottom - cutoff));
             System.out.println(localRect + "");
         }
 
@@ -218,15 +217,16 @@ public class Player
                 + (-ay * (deltaT / 1000.0f) * (deltaT / 1000.0f));
 
         // TODO: add a friction for ground stuff
-        //add amount of sideJump from jumping
+        // add amount of sideJump from jumping
         float pxtemp =
             px + (vx + additionalSideJumpVelocity) * (deltaT / 1000.0f);
-        //TODO: decrement according to deltaT
-        if(additionalSideJumpVelocity > 0 || additionalSideJumpVelocity < 0) {
-            float adjustmentAmount = startingSideJumpVelocity*deltaT/100f;
-            if(Math.abs(additionalSideJumpVelocity) < adjustmentAmount)
+        // TODO: decrement according to deltaT
+        if (additionalSideJumpVelocity > 0 || additionalSideJumpVelocity < 0)
+        {
+            float adjustmentAmount = startingSideJumpVelocity * deltaT / 100f;
+            if (Math.abs(additionalSideJumpVelocity) < adjustmentAmount)
                 additionalSideJumpVelocity = 0;
-            else if(additionalSideJumpVelocity > 0)
+            else if (additionalSideJumpVelocity > 0)
                 additionalSideJumpVelocity -= adjustmentAmount;
             else
                 additionalSideJumpVelocity += adjustmentAmount;
@@ -253,11 +253,14 @@ public class Player
         // run off a block then jump (which shouldn't be a thing)
     }
 
-    public void setNotGrounded() {
+
+    public void setNotGrounded()
+    {
         grounded = false;
         canJumpFromLeft = false;
         canJumpFromRight = false;
     }
+
 
     public void setXVelocity(float dvx)
     {

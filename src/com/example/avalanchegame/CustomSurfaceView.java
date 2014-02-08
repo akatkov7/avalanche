@@ -67,14 +67,14 @@ public class CustomSurfaceView
          *
          * @see #setSurfaceSize
          */
-        private int              mCanvasHeight            = 1920;                      // 1;
+        private int              mCanvasHeight            = 1;
 
         /**
          * Current width of the surface/canvas.
          *
          * @see #setSurfaceSize
          */
-        private int              mCanvasWidth             = 1080;                      // 1;
+        private int              mCanvasWidth             = 1;
 
         /** the current scroll offset */
         private int              scrollX                  = 0;
@@ -92,26 +92,8 @@ public class CustomSurfaceView
         // this is how we get the canvas
         private SurfaceHolder    mSurfaceHolder;
 
-        /** Temporary green paint for grass */
-        private Paint            mGrassPaint              = new Paint();
-        /** Temporary rect for the grass */
-        private RectF            mGrassRect               =
-                                                              new RectF(
-                                                                  0,
-                                                                  (int)(.8 * mCanvasHeight),
-                                                                  mCanvasWidth,
-                                                                  mCanvasHeight);
-
         private Paint            mBlackPaint              = new Paint();
-        private Player           player                   =
-                                                              new Player(
-                                                                  new RectF(
-                                                                      mCanvasWidth / 2 - 50,
-                                                                      900,
-                                                                      mCanvasWidth / 2 + 50,
-                                                                      800),
-                                                                  1080,
-                                                                  1920);
+        private Player           player;
         private List<Box>        boxes                    =
                                                               new ArrayList<Box>();
         /**
@@ -120,18 +102,10 @@ public class CustomSurfaceView
          */
         private Box[]            columns                  = new Box[6];
 
-        private int              minWidth                 =
-                                                              2 * (mCanvasWidth / 30); // Even
-// number
-        private int              maxWidth                 =
-                                                              2 * (mCanvasWidth / 15); // Even
-// number
+        private int              minWidth;
 
-        private Box              testBlock                =
-                                                              new Box(
-                                                                  mCanvasWidth / 2,
-                                                                  mCanvasHeight / 2 - 500,
-                                                                  200);
+        private int              maxWidth;
+        private Box              testBlock;
 
         private long             lastTime                 =
                                                               System
@@ -162,13 +136,7 @@ public class CustomSurfaceView
 // getContext().getResources(),
 // R.drawable.gamebackground);
 
-            mGrassPaint.setColor(Color.GREEN);
-            mGrassPaint.setStyle(Style.FILL);
-
-            mBlackPaint.setColor(Color.BLACK);
-            mBlackPaint.setStyle(Style.FILL);
-
-            boxes.add(testBlock);
+            System.out.println(mCanvasWidth + ", " + mCanvasHeight);
 
             // creates a seeded random object
             // TODO fill this in with a real seed later
@@ -200,7 +168,7 @@ public class CustomSurfaceView
                         collisions = false;
                         for (Box block : boxes)
                         {
-                            if(box.intersects(block) > -1)
+                            if (box.intersects(block) > -1)
                             {
                                 x = randInt(0, mCanvasWidth);
                                 collisions = true;
@@ -208,7 +176,7 @@ public class CustomSurfaceView
                             }
                         }
                     }
-                    while(collisions);
+                    while (collisions);
                     boxes.add(box);
                 }
                 spawnHeight +=
@@ -508,6 +476,26 @@ public class CustomSurfaceView
 // width,
 // height,
 // true);
+
+                player =
+                    new Player(new RectF(
+                        mCanvasWidth / 2 - 50,
+                        900,
+                        mCanvasWidth / 2 + 50,
+                        800), mCanvasWidth, mCanvasHeight);
+
+                testBlock =
+                    new Box(mCanvasWidth / 2, mCanvasHeight / 2 - 500, 200);
+
+                minWidth = 2 * (mCanvasWidth / 30); // Even
+
+                maxWidth = 2 * (mCanvasWidth / 15); // Even
+
+                mBlackPaint.setColor(Color.BLACK);
+                mBlackPaint.setStyle(Style.FILL);
+
+                boxes.add(testBlock);
+
             }
         }
 
@@ -689,7 +677,6 @@ public class CustomSurfaceView
         int width,
         int height)
     {
-        // width * 2 because our background is twice the width of the screen
         thread.setSurfaceSize(width, height);
     }
 
