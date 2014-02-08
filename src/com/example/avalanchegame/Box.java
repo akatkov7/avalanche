@@ -190,12 +190,30 @@ public class Box
     public int intersects(RectF collided)
     {
         int minimumIntersectIndex = -1;
+        float minimumIntersect = Float.MAX_VALUE;
         if (this.bottom < collided.top
             && this.bottom > collided.bottom
             && ((this.right < collided.right && this.right > collided.left)
                 || (this.left > collided.left && this.left < collided.right) || (this.right > collided.right && this.left < collided.left)))
         {
-            minimumIntersectIndex = 2;
+            float intersectBot = collided.top - this.bottom;
+            float intersectRight = this.right - collided.left;
+            float intersectLeft = collided.right - this.left;
+            if (intersectBot > 0 && intersectBot < minimumIntersect)
+            {
+                minimumIntersectIndex = 2;
+                minimumIntersect = intersectBot;
+            }
+            if (intersectRight > 0 && intersectRight < minimumIntersect)
+            {
+                minimumIntersectIndex = 1;
+                minimumIntersect = intersectRight;
+            }
+            if (intersectLeft > 0 && intersectLeft < minimumIntersect)
+            {
+                minimumIntersectIndex = 3;
+                minimumIntersect = intersectLeft;
+            }
         }
 // else if (this.top < collided.top
 // && this.top > collided.bottom
@@ -210,7 +228,14 @@ public class Box
 
     public void fixIntersection(RectF other, int whichSide)
     {
-        if (whichSide == 2) // bottom
+        if (whichSide == 1)
+        {
+            float amount = other.left - this.right - 0.5f;
+            offset(amount, 0);
+
+            x += amount;
+        }
+        else if (whichSide == 2) // bottom
         {
             Log.d("Fock", "Top Top Fockothy");
             float amount = other.top - this.bottom + 0.5f;
@@ -219,6 +244,13 @@ public class Box
             vy = 0;
             y += amount;
             // Log.d("CENTER", playerRect + "");
+        }
+        else if(whichSide == 3)
+        {
+            float amount = other.right - this.left + 0.5f;
+            offset(amount, 0);
+
+            x += amount;
         }
     }
 

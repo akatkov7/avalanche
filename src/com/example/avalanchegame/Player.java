@@ -199,7 +199,8 @@ public class Player
             vx = 0;
             if (!midJump)
             {
-                vy = 0;
+                vx = 20.0f;
+                vy = -230.0f;
                 px = playerRect.centerX();
                 canJumpFromRight = true;
             }
@@ -222,7 +223,8 @@ public class Player
             vx = 0;
             if (!midJump)
             {
-                vy = 0;
+                vx = -20.0f;
+                vy = -230.0f;
                 px = playerRect.centerX();
                 canJumpFromLeft = true;
             }
@@ -270,7 +272,7 @@ public class Player
         // TODO: decrement according to deltaT
         if (additionalSideJumpVelocity > 0 || additionalSideJumpVelocity < 0)
         {
-            float adjustmentAmount = startingSideJumpVelocity * deltaT / 100f;
+            float adjustmentAmount = startingSideJumpVelocity * deltaT / 200f;
             if (Math.abs(additionalSideJumpVelocity) < adjustmentAmount)
                 additionalSideJumpVelocity = 0;
             else if (additionalSideJumpVelocity > 0)
