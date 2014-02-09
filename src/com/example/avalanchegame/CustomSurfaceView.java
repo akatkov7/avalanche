@@ -105,6 +105,7 @@ public class CustomSurfaceView
         private int              minWidth;
 
         private int              maxWidth;
+        private Lava             lava;
         private Box              testBlock;
         private Box              testBlock2               =
                                                               new Box(
@@ -181,7 +182,7 @@ public class CustomSurfaceView
                         int temp = box.intersects(block);
                         if (temp > -1)
                         {
-                            Log.d("asdf", spawnHeight+"INTERSECTION");
+                            Log.d("asdf", spawnHeight + "INTERSECTION");
                             box.fixIntersection(block, temp);
                         }
                     }
@@ -496,6 +497,11 @@ public class CustomSurfaceView
                 mBlackPaint.setColor(Color.BLACK);
                 mBlackPaint.setStyle(Style.FILL);
 
+                // TODO: spawn at bottom of screen
+                lava =
+                    new Lava(0, -.5f * mCanvasHeight + 1, mCanvasWidth, -.5f
+                        * mCanvasHeight);
+
                 // boxes.add(testBlock);
                 // boxes.add(testBlock2);
             }
@@ -515,6 +521,24 @@ public class CustomSurfaceView
         }
 
         boolean firstTime = true;
+
+
+        public void restart()
+        {
+            boxes.clear();
+            firstTime = true;
+            player.restart();
+            lastTime = System.currentTimeMillis();
+            triedToJump = false;
+            lava =
+                new Lava(0, -.5f * mCanvasHeight + 1, mCanvasWidth, -.5f
+                    * mCanvasHeight);
+            topHit = false;
+            bottomHit = false;
+        }
+
+        private boolean topHit    = false;
+        private boolean bottomHit = false;
 
 
         private void updateLogic()
@@ -546,15 +570,32 @@ public class CustomSurfaceView
 
                 // adjust block
                 int collisionIndicator = player.intersects(block);
+                if (collisionIndicator == 0)
+                    topHit = true;
+                if (collisionIndicator == 2)
+                    bottomHit = true;
                 if (collisionIndicator > -1)
                 {
                     player.fixIntersection(block, collisionIndicator);
                     // fix grounding within player
                 }
             }
+            if (topHit && bottomHit)
+                restart();
+            else
+                topHit = bottomHit = false;
             if (triedToJump)
                 player.tryToJump();
             triedToJump = false;
+
+            lava.top += 1;
+
+            int collisionIndicator = player.intersects(lava);
+            if (collisionIndicator > -1)
+            {
+                Log.d("RESTART", "RESTARTING!");
+                restart();
+            }
 
             lastTime = System.currentTimeMillis();
         }
@@ -578,6 +619,8 @@ public class CustomSurfaceView
             {
                 box.draw(canvas, player.getRect().bottom);
             }
+
+            lava.draw(canvas, player.getRect().bottom);
             // canvas.drawRect(mBlockRect, mBlockPaint);
         }
 

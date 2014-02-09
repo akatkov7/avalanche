@@ -11,6 +11,7 @@ import android.util.Log;
 public class Player
 {
     private RectF       playerRect;
+    private RectF       startRect;
     private Paint       playerPaint;
     private int         canvasWidth;
     private int         canvasHeight;
@@ -34,6 +35,7 @@ public class Player
 
     public Player(RectF r, int cW, int cH)
     {
+        startRect = r;
         playerRect = r;
         width = r.right - r.left;
         height = r.top - r.bottom;
@@ -46,6 +48,23 @@ public class Player
         playerPaint = new Paint();
         playerPaint.setColor(Color.BLACK);
         playerPaint.setStyle(Style.FILL);
+    }
+
+
+    public void restart()
+    {
+        playerRect = startRect;
+        py = playerRect.centerY();
+        px = playerRect.centerX();
+        vy = 0;
+        vx = 0;
+        sideSwitched = false;
+        grounded = false;
+        canJumpFromLeft = false;
+        canJumpFromRight = false;
+        additionalSideJumpVelocity = 0f;
+        jumpVelocity = 1500f;
+        midJump = false;
     }
 
 
