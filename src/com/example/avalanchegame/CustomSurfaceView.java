@@ -128,6 +128,14 @@ public class CustomSurfaceView
 
         private boolean          triedToJump              = false;
 
+        private float            spawnCutoff              = 0;
+
+        private float            spawnIncrements;
+        private float            maxBlockHeight;
+        private int              blocksAbovePlayer        = 0;
+
+        private final int        MIN_BLOCKS_ABOVE         = 40;
+
 
         // ----------------------------------------------------------
         /**
@@ -167,7 +175,7 @@ public class CustomSurfaceView
             for (float spawnHeight = startingHeight; spawnHeight <= startingHeight
                 + additionalHeight; spawnHeight +=
                 seededRandom.nextFloat() * mCanvasHeight / 2 + mCanvasHeight
-                    / 2)
+                    / 5)
             {
                 int amountPerHeight = seededRandom.nextInt(2) + 1;
                 for (int i = 0; i < amountPerHeight; i++)
@@ -186,6 +194,8 @@ public class CustomSurfaceView
                             box.fixIntersection(block, temp);
                         }
                     }
+                    if (box.top > maxBlockHeight)
+                        maxBlockHeight = box.top;
                     boxes.add(box);
                 }
             }
@@ -502,6 +512,8 @@ public class CustomSurfaceView
                     new Lava(0, -.5f * mCanvasHeight + 1, mCanvasWidth, -.5f
                         * mCanvasHeight);
 
+                spawnIncrements = mCanvasHeight * 6;
+                maxBlockHeight = mCanvasHeight;
                 // boxes.add(testBlock);
                 // boxes.add(testBlock2);
             }
@@ -547,8 +559,18 @@ public class CustomSurfaceView
             {
                 Box ground = new Box(mCanvasWidth / 2, -5000, 10000, 0);
                 boxes.add(ground);
-                generateBoxes(mCanvasHeight, mCanvasHeight * 40);
+                // generateBoxes(mCanvasHeight, mCanvasHeight * 40);
             }
+
+            Log.d("balls", blocksAbovePlayer + "");
+            // Log.d("player", player.getY() + ", " + spawnCutoff);
+            if (blocksAbovePlayer < MIN_BLOCKS_ABOVE)
+            {
+                generateBoxes(maxBlockHeight, spawnIncrements);
+                Log.d("spawn", "SENDING MOAR BLOCKS");
+            }
+            maxBlockHeight = 0;
+            blocksAbovePlayer = 0;
             firstTime = false;
             player.adjustPosition((int)(System.currentTimeMillis() - lastTime));
             player.setNotGrounded();
@@ -567,6 +589,8 @@ public class CustomSurfaceView
                             collisionIndicator);
                     }
                 }
+                if (block.top > maxBlockHeight)
+                    maxBlockHeight = block.top;
 
                 // adjust block
                 int collisionIndicator = player.intersects(block);
@@ -579,6 +603,9 @@ public class CustomSurfaceView
                     player.fixIntersection(block, collisionIndicator);
                     // fix grounding within player
                 }
+                //TODO: is this really supposed to be x?
+                if (player.getX() < block.top)
+                    blocksAbovePlayer++;
             }
             if (topHit && bottomHit)
                 restart();
