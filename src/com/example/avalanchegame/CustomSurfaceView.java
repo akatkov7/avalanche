@@ -174,7 +174,7 @@ public class CustomSurfaceView
         {
             for (float spawnHeight = startingHeight; spawnHeight <= startingHeight
                 + additionalHeight; spawnHeight +=
-                seededRandom.nextFloat() * mCanvasHeight / 2 + mCanvasHeight
+                seededRandom.nextFloat() * mCanvasHeight / 3 + mCanvasHeight
                     / 5)
             {
                 int amountPerHeight = seededRandom.nextInt(2) + 1;
@@ -182,20 +182,14 @@ public class CustomSurfaceView
                 {
                     int width = randInt(minWidth, maxWidth) * 2;
                     int x = randInt(0, mCanvasWidth);
-                    boolean collisions = true;
                     Box box = new Box(x, spawnHeight, width, boxFallSpeed);
-                    collisions = false;
                     for (Box block : boxes)
                     {
-                        int temp = box.intersects(block);
-                        if (temp > -1)
-                        {
-                            Log.d("asdf", spawnHeight + "INTERSECTION");
-                            box.fixIntersection(block, temp);
-                        }
+                        box.fixIntersection(block, box.intersects(block));
+                        block.fixIntersection(box, block.intersects(box));
                     }
-                    if (box.top > maxBlockHeight)
-                        maxBlockHeight = box.top;
+                    // if (box.top > maxBlockHeight)
+                    // maxBlockHeight = box.top;
                     boxes.add(box);
                 }
             }
@@ -573,6 +567,21 @@ public class CustomSurfaceView
             if (blocksAbovePlayer < MIN_BLOCKS_ABOVE)
             {
                 generateBoxes(maxBlockHeight, spawnIncrements);
+// Box box1 =
+// new Box(60, mCanvasHeight * .8f, maxWidth, boxFallSpeed);
+// boxes.add(box1);
+// Box box2 =
+// new Box(
+// 90,
+// mCanvasHeight * .8f,
+// maxWidth * .8f,
+// boxFallSpeed);
+// Log.d("fdsa", box1.toString() + ", " + box2.toString());
+// box1.fixIntersection(box2, box1.intersects(box2));
+// Log.d("fdsa", box1.toString() + ", " + box2.toString());
+// // box2.fixIntersection(box1, box2.intersects(box1));
+// Log.d("fdsa", box1.toString() + ", " + box2.toString());
+// boxes.add(box2);
                 Log.d("spawn", "SENDING MOAR BLOCKS");
             }
             maxBlockHeight = 0;
@@ -590,9 +599,15 @@ public class CustomSurfaceView
                     {
                         int collisionIndicator =
                             block.intersects(possibleCollisionBlock);
+                        if (collisionIndicator > -1)
+                        {
+                            Log.d("fdsa", block.toString() + ", "
+                                + possibleCollisionBlock.toString());
+                        }
                         block.fixIntersection(
                             possibleCollisionBlock,
                             collisionIndicator);
+
                     }
                 }
                 if (block.top > maxBlockHeight)
@@ -609,8 +624,7 @@ public class CustomSurfaceView
                     player.fixIntersection(block, collisionIndicator);
                     // fix grounding within player
                 }
-                // TODO: is this really supposed to be x?
-                if (player.getX() < block.top)
+                if (player.getY() < block.top)
                     blocksAbovePlayer++;
             }
             if (topHit && bottomHit)
