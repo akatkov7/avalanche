@@ -548,6 +548,7 @@ public class CustomSurfaceView
                     * mCanvasHeight);
             topHit = false;
             bottomHit = false;
+            blocksAbovePlayer = 0;
         }
 
         private boolean topHit    = false;
@@ -608,9 +609,9 @@ public class CustomSurfaceView
                 {
                     player.fixIntersection(block, collisionIndicator);
                     // fix grounding within player
+                    player.setYVelocity(block.getVy());
                 }
-                // TODO: is this really supposed to be x?
-                if (player.getX() < block.top)
+                if (player.getY() < block.top)
                     blocksAbovePlayer++;
             }
             if (topHit && bottomHit)

@@ -401,4 +401,11 @@ public class Player
     {
         return px;
     }
+
+
+    public void setYVelocity(float blockVY)
+    {
+        // TODO Auto-generated method stub
+        vy = blockVY;
+    }
 }
