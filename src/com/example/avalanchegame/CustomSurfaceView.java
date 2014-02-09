@@ -535,6 +535,7 @@ public class CustomSurfaceView
         boolean firstTime = true;
 
 
+        // TODO: some blocks don't actually get cleared
         public void restart()
         {
             boxes.clear();
@@ -559,6 +560,11 @@ public class CustomSurfaceView
             {
                 Box ground = new Box(mCanvasWidth / 2, -5000, 10000, 0);
                 boxes.add(ground);
+                player.getRect()
+                    .offsetTo(
+                        mCanvasWidth / 2,
+                        ground.top + player.getRect().top
+                            - player.getRect().bottom);
                 // generateBoxes(mCanvasHeight, mCanvasHeight * 40);
             }
 
@@ -603,25 +609,29 @@ public class CustomSurfaceView
                     player.fixIntersection(block, collisionIndicator);
                     // fix grounding within player
                 }
-                //TODO: is this really supposed to be x?
+                // TODO: is this really supposed to be x?
                 if (player.getX() < block.top)
                     blocksAbovePlayer++;
             }
             if (topHit && bottomHit)
+            {
                 restart();
+                return;
+            }
             else
                 topHit = bottomHit = false;
             if (triedToJump)
                 player.tryToJump();
             triedToJump = false;
 
-            lava.top += 1;
+            lava.top += 1.0;
 
             int collisionIndicator = player.intersects(lava);
             if (collisionIndicator > -1)
             {
                 Log.d("RESTART", "RESTARTING!");
                 restart();
+                return;
             }
 
             lastTime = System.currentTimeMillis();
