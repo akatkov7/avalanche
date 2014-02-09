@@ -535,7 +535,6 @@ public class CustomSurfaceView
             boxes.clear();
             firstTime = true;
             player.restart();
-            lastTime = System.currentTimeMillis();
             triedToJump = false;
             lava =
                 new Lava(0, -.5f * mCanvasHeight + 1, mCanvasWidth, -.5f
@@ -543,6 +542,8 @@ public class CustomSurfaceView
             topHit = false;
             bottomHit = false;
             blocksAbovePlayer = 0;
+            maxBlockHeight = mCanvasHeight;
+            lastTime = System.currentTimeMillis();
         }
 
         private boolean topHit    = false;
@@ -616,14 +617,17 @@ public class CustomSurfaceView
 
                 // adjust block
                 int collisionIndicator = player.intersects(block);
-                if (collisionIndicator == 0)
-                    topHit = true;
-                if (collisionIndicator == 2)
-                    bottomHit = true;
                 if (collisionIndicator > -1)
                 {
                     player.fixIntersection(block, collisionIndicator);
                     // fix grounding within player
+                }
+
+                if (collisionIndicator == 0)
+                    topHit = true;
+                if (collisionIndicator == 2)
+                {
+                    bottomHit = true;
                     player.setYVelocity(block.getVy());
                 }
                 if (player.getY() < block.top)

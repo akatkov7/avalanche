@@ -29,7 +29,7 @@ public class Player
     private boolean     canJumpFromRight           = false;
     private final float startingSideJumpVelocity   = 750;
     private float       additionalSideJumpVelocity = 0f;
-    private float       jumpVelocity               = 1500f;
+    private final float jumpVelocity               = 1500f;
     private boolean     midJump                    = false;
 
 
@@ -63,7 +63,6 @@ public class Player
         canJumpFromLeft = false;
         canJumpFromRight = false;
         additionalSideJumpVelocity = 0f;
-        jumpVelocity = 1500f;
         midJump = false;
     }
 
@@ -219,7 +218,7 @@ public class Player
             if (!midJump)
             {
                 vx = 20.0f;
-                vy = -230.0f;
+                vy = -canvasHeight*.125f;
                 px = playerRect.centerX();
                 canJumpFromRight = true;
             }
@@ -243,7 +242,7 @@ public class Player
             if (!midJump)
             {
                 vx = -20.0f;
-                vy = -230.0f;
+                vy = -canvasHeight*.125f;
                 px = playerRect.centerX();
                 canJumpFromLeft = true;
             }
