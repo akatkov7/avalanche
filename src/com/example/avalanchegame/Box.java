@@ -183,7 +183,7 @@ public class Box
 
     public boolean isMoving()
     {
-        return vy != 0;
+        return Math.abs(vy) > 0.01f;
     }
 
 
@@ -230,7 +230,7 @@ public class Box
     {
         if (whichSide == 1)
         {
-            float amount = other.left - this.right - 0.5f;
+            float amount = other.left - this.right - 30.5f;
             offset(amount, 0);
 
             x += amount;
@@ -247,9 +247,10 @@ public class Box
         }
         else if(whichSide == 3)
         {
-            float amount = other.right - this.left + 0.5f;
+            float amount = other.right - this.left + 30.5f;
+            //Log.d("asdf", +other.right+", "+this.left);
             offset(amount, 0);
-
+            //Log.d("asdf", +other.right+", "+this.left);
             x += amount;
         }
     }
