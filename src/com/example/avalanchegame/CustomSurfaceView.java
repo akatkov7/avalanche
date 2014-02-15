@@ -130,6 +130,7 @@ public class CustomSurfaceView
 
         private float            spawnCutoff              = 0;
 
+        // assign after size of screen is determined
         private float            spawnIncrements;
         private float            maxBlockHeight;
         private int              blocksAbovePlayer        = 0;
@@ -568,7 +569,7 @@ public class CustomSurfaceView
             // Log.d("player", player.getY() + ", " + spawnCutoff);
             if (blocksAbovePlayer < MIN_BLOCKS_ABOVE)
             {
-                generateBoxes(maxBlockHeight+maxWidth*2, spawnIncrements);
+                generateBoxes(maxBlockHeight + maxWidth * 2, spawnIncrements);
 // Box box1 =
 // new Box(60, mCanvasHeight * .8f, maxWidth, boxFallSpeed);
 // boxes.add(box1);
