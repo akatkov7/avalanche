@@ -152,10 +152,13 @@ public class Player
                 minimumIntersectIndex = 3;
                 minimumIntersect = intersectLeft;
             }
-            if ((intersectRight > 0 || intersectLeft > 0) && sideSwitched)
-            {
+            // side switch collision trumps all
+            // if ((intersectRight > 0 || intersectLeft > 0) && sideSwitched)
+            // {
+            // minimumIntersectIndex = 4;
+            // }
+            if (sideSwitched && !(collided instanceof Ground))
                 minimumIntersectIndex = 4;
-            }
         }
         else if (playerRect.top < collided.top
             && playerRect.top > collided.bottom
@@ -179,12 +182,14 @@ public class Player
                 minimumIntersectIndex = 3;
                 minimumIntersect = intersectLeft;
             }
-            if ((intersectRight > 0 || intersectLeft > 0) && sideSwitched)
-            {
+            // side switch collision trumps all
+// if ((intersectRight > 0 || intersectLeft > 0) && sideSwitched)
+// {
+// minimumIntersectIndex = 4;
+// }
+            if (sideSwitched && !(collided instanceof Ground))
                 minimumIntersectIndex = 4;
-            }
         }
-        sideSwitched = false;
         return minimumIntersectIndex;
     }
 
@@ -218,7 +223,7 @@ public class Player
             if (!midJump)
             {
                 vx = 20.0f;
-                vy = -canvasHeight*.125f;
+                vy = -canvasHeight * .125f;
                 px = playerRect.centerX();
                 canJumpFromRight = true;
             }
@@ -232,7 +237,10 @@ public class Player
             py = playerRect.centerY();
             midJump = false;
             grounded = true;
+            canJumpFromLeft = false;
+            canJumpFromRight = false;
             // Log.d("CENTER", playerRect+"");
+            Log.d("asdfasdf", "ACTUALLY COLLIDING WITH GROUND");
         }
         else if (whichSide == 3) // left
         {
@@ -242,7 +250,7 @@ public class Player
             if (!midJump)
             {
                 vx = -20.0f;
-                vy = -canvasHeight*.125f;
+                vy = -canvasHeight * .125f;
                 px = playerRect.centerX();
                 canJumpFromLeft = true;
             }
@@ -250,18 +258,21 @@ public class Player
         }
         else if (whichSide == 4) // switched side and collided
         {
-            if (playerRect.right > canvasWidth)
+            if (px > canvasWidth)
             {
-                System.out.println("IM FIXING 1 SHIT");
-                playerRect.left = -width / 2;
+                Log.d("useless tag", "PUTTING AT LEFT");
+                playerRect.left = -width / 2 + 1.0f;
                 playerRect.right = playerRect.left + width;
+
             }
-            else if (playerRect.left < 0)
+            else if (px < 0)
             {
-                System.out.println("IM FIXING 2 SHIT");
-                playerRect.right = canvasWidth + width / 2;
+                Log.d("useless tag", "PUTTING AT RIGHT");
+                playerRect.right = canvasWidth + width / 2 - 1.0f;
                 playerRect.left = playerRect.right - width;
             }
+            sideSwitched = false;
+            Log.d("gay", sideSwitched + "");
         }
     }
 
@@ -283,11 +294,9 @@ public class Player
             py + vy * (deltaT / 1000.0f)
                 + (-ay * (deltaT / 1000.0f) * (deltaT / 1000.0f));
 
-        // TODO: add a friction for ground stuff
         // add amount of sideJump from jumping
         float pxtemp =
             px + (vx + additionalSideJumpVelocity) * (deltaT / 1000.0f);
-        // TODO: decrement according to deltaT
         if (additionalSideJumpVelocity > 0 || additionalSideJumpVelocity < 0)
         {
             float adjustmentAmount = startingSideJumpVelocity * deltaT / 250f;
@@ -317,7 +326,7 @@ public class Player
         }
         py = playerRect.centerY();
         px = playerRect.centerX();
-        // TODO: test this line.
+        Log.d("position", "bottom: " + playerRect.bottom);
         // set grounded every frame, update via a collision. otherwise, you can
         // run off a block then jump (which shouldn't be a thing)
     }
@@ -404,7 +413,12 @@ public class Player
 
     public void setYVelocity(float blockVY)
     {
-        // TODO Auto-generated method stub
         vy = blockVY;
+    }
+
+
+    public boolean switchedSides()
+    {
+        return sideSwitched;
     }
 }

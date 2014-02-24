@@ -1,5 +1,6 @@
 package com.example.avalanchegame;
 
+import java.util.Iterator;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,9 +77,6 @@ public class CustomSurfaceView
          */
         private int              mCanvasWidth             = 1;
 
-        /** the current scroll offset */
-        private int              scrollX                  = 0;
-
         /** The state of the game. One of READY, RUNNING, PAUSE, LOSE, or WIN */
         private int              mMode;
 
@@ -146,15 +144,7 @@ public class CustomSurfaceView
          */
         public GameThread(SurfaceHolder surfaceHolder)
         {
-            // get handles to some important objects
             mSurfaceHolder = surfaceHolder;
-
-            // load background image as a Bitmap instead of a Drawable b/c
-            // we don't need to transform it and it's faster to draw this way
-// mBackgroundImage =
-// BitmapFactory.decodeResource(
-// getContext().getResources(),
-// R.drawable.gamebackground);
 
             mBlackPaint.setColor(Color.BLACK);
             mBlackPaint.setStyle(Style.FILL);
@@ -182,16 +172,22 @@ public class CustomSurfaceView
                 for (int i = 0; i < amountPerHeight; i++)
                 {
                     int width = randInt(minWidth, maxWidth) * 2;
-                    int x = randInt(0, mCanvasWidth);
+                    int x = randInt(width / 2, mCanvasWidth - width / 2);
                     Box box = new Box(x, spawnHeight, width, boxFallSpeed);
-                    for (Box block : boxes)
+                    Iterator<Box> boxesIt = boxes.iterator();
+                    while (boxesIt.hasNext())
                     {
+                        Box block = boxesIt.next();
                         box.fixIntersection(block, box.intersects(block));
                         block.fixIntersection(box, block.intersects(box));
+                        if (!(block instanceof Ground)
+                            && (block.left < 0 || block.right > mCanvasWidth))
+                            boxesIt.remove();
                     }
                     // if (box.top > maxBlockHeight)
                     // maxBlockHeight = box.top;
-                    boxes.add(box);
+                    if (box.left >= 0 && box.right <= mCanvasWidth)
+                        boxes.add(box);
                 }
             }
 // for (int i = 0; i < columns.length; i++)
@@ -384,6 +380,7 @@ public class CustomSurfaceView
                                     }
                                     catch (InterruptedException e)
                                     {
+                                        // this should probably never fail...
                                     }
                                 }
                                 while (sleepTime < 0
@@ -502,7 +499,6 @@ public class CustomSurfaceView
                 mBlackPaint.setColor(Color.BLACK);
                 mBlackPaint.setStyle(Style.FILL);
 
-                // TODO: spawn at bottom of screen
                 lava =
                     new Lava(0, -.5f * mCanvasHeight + 1, mCanvasWidth, -.5f
                         * mCanvasHeight);
@@ -544,6 +540,8 @@ public class CustomSurfaceView
             bottomHit = false;
             blocksAbovePlayer = 0;
             maxBlockHeight = mCanvasHeight;
+            // use new seed
+            seededRandom = new Random((long)(Long.MAX_VALUE * Math.random()));
             lastTime = System.currentTimeMillis();
         }
 
@@ -555,7 +553,7 @@ public class CustomSurfaceView
         {
             if (firstTime)
             {
-                Box ground = new Box(mCanvasWidth / 2, -5000, 10000, 0);
+                Box ground = new Ground(mCanvasWidth / 2, -5000, 10000);
                 boxes.add(ground);
                 player.getRect()
                     .offsetTo(
@@ -566,25 +564,9 @@ public class CustomSurfaceView
             }
 
             Log.d("balls", blocksAbovePlayer + "");
-            // Log.d("player", player.getY() + ", " + spawnCutoff);
             if (blocksAbovePlayer < MIN_BLOCKS_ABOVE)
             {
                 generateBoxes(maxBlockHeight + maxWidth * 2, spawnIncrements);
-// Box box1 =
-// new Box(60, mCanvasHeight * .8f, maxWidth, boxFallSpeed);
-// boxes.add(box1);
-// Box box2 =
-// new Box(
-// 90,
-// mCanvasHeight * .8f,
-// maxWidth * .8f,
-// boxFallSpeed);
-// Log.d("fdsa", box1.toString() + ", " + box2.toString());
-// box1.fixIntersection(box2, box1.intersects(box2));
-// Log.d("fdsa", box1.toString() + ", " + box2.toString());
-// // box2.fixIntersection(box1, box2.intersects(box1));
-// Log.d("fdsa", box1.toString() + ", " + box2.toString());
-// boxes.add(box2);
                 Log.d("spawn", "SENDING MOAR BLOCKS");
             }
             maxBlockHeight = 0;
@@ -621,14 +603,18 @@ public class CustomSurfaceView
                 if (collisionIndicator > -1)
                 {
                     player.fixIntersection(block, collisionIndicator);
+                    if (block.width() > 9000)
+                        Log.d("ground", "colliding with ground");
                     // fix grounding within player
                 }
 
                 if (collisionIndicator == 0)
-                    topHit = true;
+                    if (!player.switchedSides())
+                        topHit = true;
                 if (collisionIndicator == 2)
                 {
-                    bottomHit = true;
+                    if (!player.switchedSides())
+                        bottomHit = true;
                     player.setYVelocity(block.getVy());
                 }
                 if (player.getY() < block.top)
@@ -636,6 +622,7 @@ public class CustomSurfaceView
             }
             if (topHit && bottomHit)
             {
+                Log.d("died", player.switchedSides() + "anus");
                 restart();
                 return;
             }
