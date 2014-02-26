@@ -135,6 +135,8 @@ public class CustomSurfaceView
 
         private final int        MIN_BLOCKS_ABOVE         = 40;
 
+        private boolean          firstTime                = true;
+
 
         // ----------------------------------------------------------
         /**
@@ -310,6 +312,9 @@ public class CustomSurfaceView
             {
                 if (mMode == STATE_RUNNING)
                     setState(STATE_PAUSE);
+
+                mRun = false;
+
             }
         }
 
@@ -516,17 +521,14 @@ public class CustomSurfaceView
          */
         public void unpause()
         {
-            // Move the real time clock up to now
             synchronized (mSurfaceHolder)
             {
+                setState(STATE_RUNNING);
+                mRun = true;
             }
-            setState(STATE_RUNNING);
         }
 
-        boolean firstTime = true;
 
-
-        // TODO: some blocks don't actually get cleared
         public void restart()
         {
             boxes.clear();
@@ -759,6 +761,8 @@ public class CustomSurfaceView
     {
         if (!hasWindowFocus)
             thread.pause();
+        else//TODO: make this open pause screen
+            thread.unpause();
     }
 
 
@@ -809,4 +813,5 @@ public class CustomSurfaceView
             }
         }
     }
+
 }

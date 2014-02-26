@@ -1,5 +1,6 @@
 package com.example.avalanchegame;
 
+import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.app.Activity;
 import android.content.Context;
@@ -36,6 +37,10 @@ public class MainActivity
         // tell system to use the layout defined in our XML file
         setContentView(R.layout.activity_main);
 
+        // lock in portrait mode? TODO: test this
+        super
+            .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         SensorManager sensorManager;
         Sensor accelerometer;
@@ -62,8 +67,16 @@ public class MainActivity
     @Override
     protected void onPause()
     {
-        screenContainer.getThread().pause(); // pause game when Activity pauses
         super.onPause();
+        screenContainer.getThread().pause(); // pause game when Activity pauses
+    }
+
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        screenContainer.getThread().unpause();// TODO:make this open paused menu
     }
 
 
