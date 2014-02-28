@@ -50,16 +50,6 @@ public class CustomSurfaceView
         private final static int MAX_FRAME_SKIPS          = 5;
         private final static int FRAME_PERIOD             = 1000 / MAX_FPS;
 
-        /*
-         * State-tracking constants These are from the game i copied this from,
-         * should probably make this an enum if we use it
-         */
-        public static final int  STATE_LOSE               = 1;
-        public static final int  STATE_PAUSE              = 2;
-        public static final int  STATE_READY              = 3;
-        public static final int  STATE_RUNNING            = 4;
-        public static final int  STATE_WIN                = 5;
-
         /** The drawable to use as the background of the animation canvas */
         private Bitmap           mBackgroundImage;
 
@@ -76,9 +66,6 @@ public class CustomSurfaceView
          * @see #setSurfaceSize
          */
         private int              mCanvasWidth             = 1;
-
-        /** The state of the game. One of READY, RUNNING, PAUSE, LOSE, or WIN */
-        private int              mMode;
 
         /** Indicate whether the surface has been created & is ready to draw */
         private boolean          mRun                     = false;
@@ -291,30 +278,13 @@ public class CustomSurfaceView
 
 
         /**
-         * Starts the game, setting parameters for the current difficulty.
-         * Copied from old game, might use or not
-         */
-        public void doStart()
-        {
-            synchronized (mSurfaceHolder)
-            {
-                setState(STATE_RUNNING);
-            }
-        }
-
-
-        /**
          * Pauses the physics update & animation.
          */
         public void pause()
         {
             synchronized (mSurfaceHolder)
             {
-                if (mMode == STATE_RUNNING)
-                    setState(STATE_PAUSE);
-
                 mRun = false;
-
             }
         }
 
@@ -331,7 +301,7 @@ public class CustomSurfaceView
         {
             synchronized (mSurfaceHolder)
             {
-                setState(STATE_PAUSE);
+                // setState(STATE_PAUSE);
             }
         }
 
@@ -453,19 +423,9 @@ public class CustomSurfaceView
         }
 
 
-        /**
-         * Sets the game mode. That is, whether we are running, paused, in the
-         * failure state, in the victory state, etc.
-         *
-         * @param mode
-         *            one of the STATE_* constants
-         */
-        public void setState(int mode)
+        public boolean isRunning()
         {
-            synchronized (mSurfaceHolder)
-            {
-                mMode = mode;
-            }
+            return mRun;
         }
 
 
@@ -523,7 +483,7 @@ public class CustomSurfaceView
         {
             synchronized (mSurfaceHolder)
             {
-                setState(STATE_RUNNING);
+                // setState(STATE_RUNNING);
                 mRun = true;
             }
         }
@@ -704,7 +664,8 @@ public class CustomSurfaceView
 
         public void onSensorChanged(SensorEvent event)
         {
-            player.setXVelocity(accelerometerCoefficient * event.values[0]);
+            if (event != null && event.values != null)
+                player.setXVelocity(accelerometerCoefficient * event.values[0]);
         }
     }
 
@@ -761,7 +722,8 @@ public class CustomSurfaceView
     {
         if (!hasWindowFocus)
             thread.pause();
-        else//TODO: make this open pause screen
+        else
+            // TODO: make this open pause screen
             thread.unpause();
     }
 
@@ -786,6 +748,7 @@ public class CustomSurfaceView
         // start the thread here so that we don't busy-wait in run()
         // waiting for the surface to be created
         thread.setRunning(true);
+        System.out.println(thread.isRunning());
         thread.start();
     }
 
@@ -810,6 +773,7 @@ public class CustomSurfaceView
             }
             catch (InterruptedException e)
             {
+                // don't worry about it
             }
         }
     }

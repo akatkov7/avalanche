@@ -1,9 +1,11 @@
 package com.example.avalanchegame;
 
-import android.content.pm.ActivityInfo;
+import android.content.Intent;
 import android.util.Log;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,6 +22,9 @@ public class MainActivity
 
     private CustomSurfaceView screenContainer;
     private GameThread        gameThread;
+    private SensorManager     sensorManager;
+    private Sensor            accelerometer;
+    private boolean           firstLoad;
 
 
     /**
@@ -34,30 +39,50 @@ public class MainActivity
     {
         super.onCreate(savedInstanceState);
 
+        if (savedInstanceState != null)
+        {
+            gameThread.restoreState(savedInstanceState);
+        }
+
         // tell system to use the layout defined in our XML file
         setContentView(R.layout.activity_main);
 
-        // lock in portrait mode? TODO: test this
-        super
-            .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        firstLoad = true;
+
+        // lock in portrait mode? TODO: test this, really diafetus, landscape?
+// super
+// .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        SensorManager sensorManager;
-        Sensor accelerometer;
+
         // Initialize framework for getting accelerometer tilt events.
         sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         accelerometer =
             sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        sensorManager.registerListener(
-            this,
-            accelerometer,
-            SensorManager.SENSOR_DELAY_NORMAL);
-
         screenContainer = (CustomSurfaceView)findViewById(R.id.screenContainer);
         gameThread = screenContainer.getThread();
+        // gameThread.doStart();
+    }
 
-        gameThread.doStart();
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        // just have the View's thread save its state into our Bundle
+        super.onSaveInstanceState(outState);
+        gameThread.saveState(outState);
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 2)
+        {
+            finish();
+        }
     }
 
 
@@ -68,7 +93,10 @@ public class MainActivity
     protected void onPause()
     {
         super.onPause();
+        sensorManager.unregisterListener(this);
         screenContainer.getThread().pause(); // pause game when Activity pauses
+        Intent i = new Intent(this, PauseScreen.class);
+        startActivityForResult(i, 2);
     }
 
 
@@ -76,7 +104,13 @@ public class MainActivity
     protected void onResume()
     {
         super.onResume();
-        screenContainer.getThread().unpause();// TODO:make this open paused menu
+        sensorManager.registerListener(
+            this,
+            accelerometer,
+            SensorManager.SENSOR_DELAY_NORMAL);
+        System.out.println(gameThread.isRunning());
+        screenContainer.getThread().unpause();// TODO:make this open paused
+// menu
     }
 
 
@@ -99,6 +133,7 @@ public class MainActivity
     public void onSensorChanged(SensorEvent event)
     {
         // TODO Auto-generated method stub
+
         gameThread.onSensorChanged(event);
     }
 

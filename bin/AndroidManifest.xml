@@ -12,17 +12,27 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         <activity
-            android:name="com.example.avalanchegame.MainActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+            android:name=".MainActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".TitleMenu"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".LoginMenu" >
+        </activity>
+        <activity android:name=".SignUpMenu" >
+        </activity>
+        <activity android:name=".GameSelect" >
+        </activity>
+        <activity android:name=".PauseScreen" >
         </activity>
     </application>
 
