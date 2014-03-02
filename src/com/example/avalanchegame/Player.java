@@ -1,5 +1,7 @@
 package com.example.avalanchegame;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -8,7 +10,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 
-public class Player
+public class Player implements Parcelable
 {
     private RectF       playerRect;
     private RectF       startRect;
@@ -27,9 +29,9 @@ public class Player
     private boolean     grounded                   = false;
     private boolean     canJumpFromLeft            = false;
     private boolean     canJumpFromRight           = false;
-    private final float startingSideJumpVelocity   = 750;
+    private float startingSideJumpVelocity   = 750;
     private float       additionalSideJumpVelocity = 0f;
-    private final float jumpVelocity               = 1500f;
+    private float jumpVelocity               = 1500f;
     private boolean     midJump                    = false;
 
 
@@ -46,6 +48,32 @@ public class Player
         ax = 10;
         ay = -canvasHeight * 1.5f;
         playerPaint = new Paint();
+        playerPaint.setColor(Color.BLACK);
+        playerPaint.setStyle(Style.FILL);
+    }
+
+    public Player(Parcel parcel)
+    {
+        playerRect = parcel.readParcelable(null);
+        startRect = parcel.readParcelable(null);
+        canvasWidth = parcel.readInt();
+        canvasHeight = parcel.readInt();
+        width = parcel.readFloat();
+        height = parcel.readFloat();
+        ay = parcel.readFloat();
+        ax = parcel.readFloat();
+        vy = parcel.readFloat();
+        vx = parcel.readFloat();
+        py = parcel.readFloat();
+        px = parcel.readFloat();
+        sideSwitched = parcel.readByte() != 0;
+        grounded = parcel.readByte() != 0;
+        canJumpFromLeft = parcel.readByte() != 0;
+        canJumpFromRight = parcel.readByte() != 0;
+        startingSideJumpVelocity = parcel.readFloat();
+        additionalSideJumpVelocity = parcel.readFloat();
+        jumpVelocity = parcel.readFloat();
+        midJump = parcel.readByte() != 0;
         playerPaint.setColor(Color.BLACK);
         playerPaint.setStyle(Style.FILL);
     }
@@ -420,5 +448,40 @@ public class Player
     public boolean switchedSides()
     {
         return sideSwitched;
+    }
+
+
+    public int describeContents()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+        //idk what this method is supposed to do
+    }
+
+
+    public void writeToParcel(Parcel parcel, int flags)
+    {
+        parcel.writeParcelable(playerRect, 0);//idk if 0
+        parcel.writeParcelable(startRect, 0);
+        //idk what to do about paint. just load it regardless in the reading thing?
+        parcel.writeInt(canvasWidth);
+        parcel.writeInt(canvasHeight);
+        parcel.writeFloat(width);
+        parcel.writeFloat(height);
+        parcel.writeFloat(ay);
+        parcel.writeFloat(ax);
+        parcel.writeFloat(vy);
+        parcel.writeFloat(vx);
+        parcel.writeFloat(py);
+        parcel.writeFloat(px);
+        parcel.writeByte((byte)(sideSwitched?1:0));
+        parcel.writeByte((byte)(grounded?1:0));
+        parcel.writeByte((byte)(canJumpFromLeft?1:0));
+        parcel.writeByte((byte)(canJumpFromRight?1:0));
+        parcel.writeFloat(startingSideJumpVelocity);
+        parcel.writeFloat(additionalSideJumpVelocity);
+        parcel.writeFloat(jumpVelocity);
+        parcel.writeByte((byte)(midJump?1:0));
+
     }
 }

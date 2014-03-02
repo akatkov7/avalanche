@@ -1,5 +1,7 @@
 package com.example.avalanchegame;
 
+import java.util.LinkedList;
+import android.os.Parcelable;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.ArrayList;
@@ -105,7 +107,9 @@ public class CustomSurfaceView
 
         // the amount the accelerometer value should be multiplied by before
         // being passed to the player object
-        private final int        accelerometerCoefficient = -100;
+        private int        accelerometerCoefficient = -100;
+
+        private long seed = (long)(Long.MAX_VALUE * Math.random());
 
         private Random           seededRandom;
 
@@ -140,7 +144,7 @@ public class CustomSurfaceView
 
             // creates a seeded random object
             // TODO fill this in with a real seed later
-            seededRandom = new Random((long)(Long.MAX_VALUE * Math.random()));
+            seededRandom = new Random(seed);
         }
 
 
@@ -301,7 +305,37 @@ public class CustomSurfaceView
         {
             synchronized (mSurfaceHolder)
             {
-                // setState(STATE_PAUSE);
+                //load everything
+                //what about these?
+                mCanvasHeight = savedState.getInt("height");
+                mCanvasWidth = savedState.getInt("width");
+                mRun = savedState.getBoolean("mRun");
+
+                //obv player and boxes
+                player = (Player)savedState.getParcelable("player");
+                Box[] boxArray = (Box[])savedState.getParcelableArray("boxes");
+                boxes = new LinkedList<Box>();
+                for(int i = 0; i < boxArray.length; i++)
+                    boxes.add(boxArray[i]);
+
+                //do I need to reload these?
+                minWidth = savedState.getInt("minWidth");
+                maxWidth = savedState.getInt("maxWidth");
+                //obv lava
+                lava = (Lava)savedState.getParcelable("lava");
+                //make new last time after TODO: unpausing
+                accelerometerCoefficient = savedState.getInt("accelCoeff");
+                //will random still exist? do I need to reload accelCoeff?
+                boxFallSpeed = savedState.getFloat("boxFallSpeed");
+                triedToJump = savedState.getBoolean("triedToJump");
+                //i don't think I need this one
+                spawnCutoff = savedState.getFloat("spawnCutoff");
+                spawnIncrements = savedState.getFloat("spawnInc");
+                maxBlockHeight = savedState.getFloat("maxBlockHeight");
+                blocksAbovePlayer = savedState.getInt("blocksAbovePlayer");
+                firstTime = savedState.getBoolean("firstTime");
+
+
             }
         }
 
@@ -396,7 +430,25 @@ public class CustomSurfaceView
             {
                 if (map != null)
                 {
-                    // Intentionally left blank, to be filled later
+                    map.putInt("height", mCanvasHeight);
+                    map.putInt("width", mCanvasWidth);
+                    map.putBoolean("mRun", mRun);
+                    map.putParcelable("player", player);
+                    map.putParcelableArray("boxes", (Parcelable[])boxes.toArray());//dumb
+                    map.putInt("minWidth", minWidth);
+                    map.putInt("maxWidth", maxWidth);
+                    map.putParcelable("lava", lava);
+                    map.putLong("lastTime", lastTime);
+                    map.putInt("accelCoeff", accelerometerCoefficient);
+                    //probably have to remake seededRandom in restoreState
+                    //with new seed, otherwise repetition
+                    map.putFloat("boxFallSpeed", boxFallSpeed);
+                    map.putBoolean("triedToJump", triedToJump);
+                    map.putFloat("spawnCutoff", spawnCutoff);
+                    map.putFloat("spawnInc", spawnIncrements);
+                    map.putFloat("maxBlockHeight", maxBlockHeight);
+                    map.putInt("blocksAbovePlayer", blocksAbovePlayer);
+                    map.putBoolean("firstTime", firstTime);
                 }
             }
             return map;
