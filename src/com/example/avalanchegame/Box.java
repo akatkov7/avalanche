@@ -237,7 +237,7 @@ public class Box
         }
         else if (whichSide == 2) // bottom
         {
-            Log.d("Fock", "Top Top Fockothy");
+            // Log.d("Fock", "Top Top Fockothy");
             float amount = other.top - this.bottom + 0.5f;
             offset(0, amount);
 

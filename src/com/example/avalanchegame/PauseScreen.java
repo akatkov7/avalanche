@@ -22,6 +22,15 @@ public class PauseScreen
         setContentView(R.layout.pausescreen);
     }
 
+
+    public void onBackPressed()
+    {
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        finish();
+    }
+
+
     // ----------------------------------------------------------
     /**
      * If the user wishes to return to the game, then simply invoke the back
@@ -29,8 +38,7 @@ public class PauseScreen
      */
     public void backToGame(View v)
     {
-        super.onBackPressed();
-        finish();
+        onBackPressed();
     }
 
 

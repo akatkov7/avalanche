@@ -268,7 +268,7 @@ public class Player implements Parcelable
             canJumpFromLeft = false;
             canJumpFromRight = false;
             // Log.d("CENTER", playerRect+"");
-            Log.d("asdfasdf", "ACTUALLY COLLIDING WITH GROUND");
+            // Log.d("asdfasdf", "ACTUALLY COLLIDING WITH GROUND");
         }
         else if (whichSide == 3) // left
         {
@@ -354,7 +354,7 @@ public class Player implements Parcelable
         }
         py = playerRect.centerY();
         px = playerRect.centerX();
-        Log.d("position", "bottom: " + playerRect.bottom);
+        // Log.d("position", "bottom: " + playerRect.bottom);
         // set grounded every frame, update via a collision. otherwise, you can
         // run off a block then jump (which shouldn't be a thing)
     }

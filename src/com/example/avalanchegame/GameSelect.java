@@ -19,5 +19,6 @@ public class GameSelect
     {
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
+        finish();
     }
 }

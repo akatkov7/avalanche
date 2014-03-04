@@ -1,30 +1,31 @@
 package com.example.avalanchegame;
 
-import android.content.Intent;
-import android.util.Log;
+import android.content.SharedPreferences;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import com.example.avalanchegame.CustomSurfaceView.GameThread;
 
 public class MainActivity
     extends Activity
     implements SensorEventListener
 {
+    public final static String PREF_FILE = "EruptionGameState";
 
-    private CustomSurfaceView screenContainer;
-    private GameThread        gameThread;
-    private SensorManager     sensorManager;
-    private Sensor            accelerometer;
-    private boolean           firstLoad;
+    private CustomSurfaceView  screenContainer;
+    private GameThread         gameThread;
+    private SensorManager      sensorManager;
+    private Sensor             accelerometer;
+    private Button             startGame;
 
 
     /**
@@ -39,19 +40,8 @@ public class MainActivity
     {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null)
-        {
-            gameThread.restoreState(savedInstanceState);
-        }
-
         // tell system to use the layout defined in our XML file
         setContentView(R.layout.activity_main);
-
-        firstLoad = true;
-
-        // lock in portrait mode? TODO: test this, really diafetus, landscape?
-// super
-// .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -60,18 +50,34 @@ public class MainActivity
         accelerometer =
             sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        startGame = (Button)findViewById(R.id.startGame);
         screenContainer = (CustomSurfaceView)findViewById(R.id.screenContainer);
         gameThread = screenContainer.getThread();
-        // gameThread.doStart();
+
+        SharedPreferences prefs =
+            getSharedPreferences(MainActivity.PREF_FILE, 0);
+        // prefs.edit().putBoolean("gameSaved", false).commit();
+
+        if (prefs.getBoolean("gameSaved", false))
+        {
+            screenContainer.post(new Runnable() {
+
+                public void run()
+                {
+                    // TODO Auto-generated method stub
+                    System.out.println("restoring");
+                    startGame.setText("Resume");
+                    gameThread.restoreState();
+                }
+            });
+        }
     }
 
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState)
+    public void startGame(View v)
     {
-        // just have the View's thread save its state into our Bundle
-        super.onSaveInstanceState(outState);
-        gameThread.saveState(outState);
+        gameThread.start();
+        v.setVisibility(View.GONE);
     }
 
 
@@ -94,9 +100,11 @@ public class MainActivity
     {
         super.onPause();
         sensorManager.unregisterListener(this);
-        screenContainer.getThread().pause(); // pause game when Activity pauses
+        if (gameThread != null)
+            gameThread.saveState();
         Intent i = new Intent(this, PauseScreen.class);
         startActivityForResult(i, 2);
+        finish(); // this will stop the thread (i think)
     }
 
 
@@ -108,9 +116,6 @@ public class MainActivity
             this,
             accelerometer,
             SensorManager.SENSOR_DELAY_NORMAL);
-        System.out.println(gameThread.isRunning());
-        screenContainer.getThread().unpause();// TODO:make this open paused
-// menu
     }
 
 
@@ -133,8 +138,8 @@ public class MainActivity
     public void onSensorChanged(SensorEvent event)
     {
         // TODO Auto-generated method stub
-
-        gameThread.onSensorChanged(event);
+        if (gameThread != null)
+            gameThread.onSensorChanged(event);
     }
 
 }

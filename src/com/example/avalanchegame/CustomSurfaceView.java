@@ -1,26 +1,27 @@
 package com.example.avalanchegame;
 
-import java.util.LinkedList;
-import android.os.Parcelable;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.ArrayList;
-import java.util.List;
-import android.hardware.SensorEvent;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Bundle;
+import android.hardware.SensorEvent;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 // -------------------------------------------------------------------------
 /**
@@ -93,6 +94,7 @@ public class CustomSurfaceView
 
         private int              maxWidth;
         private Lava             lava;
+        private Box              ground;
         private Box              testBlock;
         private Box              testBlock2               =
                                                               new Box(
@@ -107,9 +109,11 @@ public class CustomSurfaceView
 
         // the amount the accelerometer value should be multiplied by before
         // being passed to the player object
-        private int        accelerometerCoefficient = -100;
+        private int              accelerometerCoefficient = -100;
 
-        private long seed = (long)(Long.MAX_VALUE * Math.random());
+        private long             seed                     =
+                                                              (long)(Long.MAX_VALUE * Math
+                                                                  .random());
 
         private Random           seededRandom;
 
@@ -292,53 +296,6 @@ public class CustomSurfaceView
             }
         }
 
-
-        /**
-         * Restores game state from the indicated Bundle. Typically called when
-         * the Activity is being restored after having been previously
-         * destroyed.
-         *
-         * @param savedState
-         *            Bundle containing the game state
-         */
-        public synchronized void restoreState(Bundle savedState)
-        {
-            synchronized (mSurfaceHolder)
-            {
-                //load everything
-                //what about these?
-                mCanvasHeight = savedState.getInt("height");
-                mCanvasWidth = savedState.getInt("width");
-                mRun = savedState.getBoolean("mRun");
-
-                //obv player and boxes
-                player = (Player)savedState.getParcelable("player");
-                Box[] boxArray = (Box[])savedState.getParcelableArray("boxes");
-                boxes = new LinkedList<Box>();
-                for(int i = 0; i < boxArray.length; i++)
-                    boxes.add(boxArray[i]);
-
-                //do I need to reload these?
-                minWidth = savedState.getInt("minWidth");
-                maxWidth = savedState.getInt("maxWidth");
-                //obv lava
-                lava = (Lava)savedState.getParcelable("lava");
-                //make new last time after TODO: unpausing
-                accelerometerCoefficient = savedState.getInt("accelCoeff");
-                //will random still exist? do I need to reload accelCoeff?
-                boxFallSpeed = savedState.getFloat("boxFallSpeed");
-                triedToJump = savedState.getBoolean("triedToJump");
-                //i don't think I need this one
-                spawnCutoff = savedState.getFloat("spawnCutoff");
-                spawnIncrements = savedState.getFloat("spawnInc");
-                maxBlockHeight = savedState.getFloat("maxBlockHeight");
-                blocksAbovePlayer = savedState.getInt("blocksAbovePlayer");
-                firstTime = savedState.getBoolean("firstTime");
-
-
-            }
-        }
-
         private long beginTime; // the time when the cycle began
 
 
@@ -419,39 +376,67 @@ public class CustomSurfaceView
 
 
         /**
-         * Dump game state to the provided Bundle. Typically called when the
-         * Activity is being suspended.
+         * Restores game state from the indicated Bundle. Typically called when
+         * the Activity is being restored after having been previously
+         * destroyed.
          *
-         * @return Bundle with this view's state
+         * @param savedState
+         *            Bundle containing the game state
          */
-        public Bundle saveState(Bundle map)
+        public synchronized void restoreState()
         {
             synchronized (mSurfaceHolder)
             {
-                if (map != null)
-                {
-                    map.putInt("height", mCanvasHeight);
-                    map.putInt("width", mCanvasWidth);
-                    map.putBoolean("mRun", mRun);
-                    map.putParcelable("player", player);
-                    map.putParcelableArray("boxes", (Parcelable[])boxes.toArray());//dumb
-                    map.putInt("minWidth", minWidth);
-                    map.putInt("maxWidth", maxWidth);
-                    map.putParcelable("lava", lava);
-                    map.putLong("lastTime", lastTime);
-                    map.putInt("accelCoeff", accelerometerCoefficient);
-                    //probably have to remake seededRandom in restoreState
-                    //with new seed, otherwise repetition
-                    map.putFloat("boxFallSpeed", boxFallSpeed);
-                    map.putBoolean("triedToJump", triedToJump);
-                    map.putFloat("spawnCutoff", spawnCutoff);
-                    map.putFloat("spawnInc", spawnIncrements);
-                    map.putFloat("maxBlockHeight", maxBlockHeight);
-                    map.putInt("blocksAbovePlayer", blocksAbovePlayer);
-                    map.putBoolean("firstTime", firstTime);
-                }
+                Gson g = new Gson();
+                SharedPreferences prefs =
+                    getContext()
+                        .getSharedPreferences(MainActivity.PREF_FILE, 0);
+                Editor e = prefs.edit();
+                player =
+                    g.fromJson(prefs.getString("player", "null"), Player.class);
+                if (player == null)
+                    System.out.println("PLAYER NULL");
+// Type listType = new TypeToken<List<Box>>() {
+// }.getType();
+// boxes = g.fromJson(prefs.getString("boxes", "null"), listType);
+                lava = g.fromJson(prefs.getString("lava", "null"), Lava.class);
+                if (lava == null)
+                    System.out.println("LAVA NULL");
+                // System.out.println("LAVA TOP: " + lava.top);
+                triedToJump = prefs.getBoolean("triedToJump", false);
+                blocksAbovePlayer = prefs.getInt("blocksAbovePlayer", 0);
+                firstTime = prefs.getBoolean("firstTime", false);
+                e.putBoolean("gameSaved", false);
+                e.commit();
             }
-            return map;
+        }
+
+
+        /**
+         * Dump game state to the provided Bundle. Typically called when the
+         * Activity is being suspended.
+         */
+        public synchronized void saveState()
+        {
+            synchronized (mSurfaceHolder)
+            {
+                Gson g = new Gson();
+                SharedPreferences prefs =
+                    getContext()
+                        .getSharedPreferences(MainActivity.PREF_FILE, 0);
+                Editor e = prefs.edit();
+                // System.out.println(g.toJson(player, Player.class));
+                e.putString("player", g.toJson(player, Player.class));
+// Type listType = new TypeToken<List<Box>>() {
+// }.getType();
+// e.putString("boxes", g.toJson(boxes, listType));
+                e.putString("lava", g.toJson(lava, Lava.class));
+                e.putBoolean("triedToJump", triedToJump);
+                e.putInt("blocksAbovePlayer", blocksAbovePlayer);
+                e.putBoolean("firstTime", firstTime);
+                e.putBoolean("gameSaved", true);
+                e.commit();
+            }
         }
 
 
@@ -522,6 +507,9 @@ public class CustomSurfaceView
 
                 spawnIncrements = mCanvasHeight * 6;
                 maxBlockHeight = mCanvasHeight;
+
+                ground = new Ground(mCanvasWidth / 2, -5000, 10000);
+                boxes.add(ground);
                 // boxes.add(testBlock);
                 // boxes.add(testBlock2);
             }
@@ -543,7 +531,15 @@ public class CustomSurfaceView
 
         public void restart()
         {
+            SharedPreferences prefs =
+                getContext().getSharedPreferences(MainActivity.PREF_FILE, 0);
+            Editor e = prefs.edit();
+            e.putBoolean("gameSaved", false);
+            e.commit();
+
             boxes.clear();
+            ground = new Ground(mCanvasWidth / 2, -5000, 10000);
+            boxes.add(ground);
             firstTime = true;
             player.restart();
             triedToJump = false;
@@ -567,8 +563,6 @@ public class CustomSurfaceView
         {
             if (firstTime)
             {
-                Box ground = new Ground(mCanvasWidth / 2, -5000, 10000);
-                boxes.add(ground);
                 player.getRect()
                     .offsetTo(
                         mCanvasWidth / 2,
@@ -577,7 +571,7 @@ public class CustomSurfaceView
                 // generateBoxes(mCanvasHeight, mCanvasHeight * 40);
             }
 
-            Log.d("balls", blocksAbovePlayer + "");
+            // Log.d("balls", blocksAbovePlayer + "");
             if (blocksAbovePlayer < MIN_BLOCKS_ABOVE)
             {
                 generateBoxes(maxBlockHeight + maxWidth * 2, spawnIncrements);
@@ -600,8 +594,8 @@ public class CustomSurfaceView
                             block.intersects(possibleCollisionBlock);
                         if (collisionIndicator > -1)
                         {
-                            Log.d("fdsa", block.toString() + ", "
-                                + possibleCollisionBlock.toString());
+// Log.d("fdsa", block.toString() + ", "
+// + possibleCollisionBlock.toString());
                         }
                         block.fixIntersection(
                             possibleCollisionBlock,
@@ -617,8 +611,8 @@ public class CustomSurfaceView
                 if (collisionIndicator > -1)
                 {
                     player.fixIntersection(block, collisionIndicator);
-                    if (block.width() > 9000)
-                        Log.d("ground", "colliding with ground");
+                    // if (block.width() > 9000)
+                    // Log.d("ground", "colliding with ground");
                     // fix grounding within player
                 }
 
@@ -716,7 +710,7 @@ public class CustomSurfaceView
 
         public void onSensorChanged(SensorEvent event)
         {
-            if (event != null && event.values != null)
+            if (event != null && event.values != null && player != null)
                 player.setXVelocity(accelerometerCoefficient * event.values[0]);
         }
     }
@@ -799,9 +793,13 @@ public class CustomSurfaceView
     {
         // start the thread here so that we don't busy-wait in run()
         // waiting for the surface to be created
+        if (thread.getState() == Thread.State.TERMINATED)
+        {
+            System.out.println("creating a new thread because terminated");
+            thread = new GameThread(getHolder());
+        }
         thread.setRunning(true);
-        System.out.println(thread.isRunning());
-        thread.start();
+        // thread.start();
     }
 
 
@@ -814,6 +812,7 @@ public class CustomSurfaceView
     {
         // we have to tell thread to shut down & wait for it to finish, or else
         // it might touch the Surface after we return and explode
+        System.out.println("TIME TO DIE!");
         boolean retry = true;
         thread.setRunning(false);
         while (retry)
