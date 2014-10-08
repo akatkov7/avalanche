@@ -1,4 +1,4 @@
-package com.example.avalanchegame;
+package com.example.eruption;
 
 import android.app.Activity;
 import android.content.Context;

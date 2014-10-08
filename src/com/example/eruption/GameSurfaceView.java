@@ -1,4 +1,4 @@
-package com.example.avalanchegame;
+package com.example.eruption;
 
 import android.content.Context;
 import android.view.MotionEvent;

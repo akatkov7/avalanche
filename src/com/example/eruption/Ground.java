@@ -1,4 +1,4 @@
-package com.example.avalanchegame;
+package com.example.eruption;
 
 public class Ground
     extends Box

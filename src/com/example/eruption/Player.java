@@ -1,4 +1,4 @@
-package com.example.avalanchegame;
+package com.example.eruption;
 
 import android.os.Parcel;
 import android.os.Parcelable;

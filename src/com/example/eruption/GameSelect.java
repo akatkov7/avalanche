@@ -1,4 +1,6 @@
-package com.example.avalanchegame;
+package com.example.eruption;
+
+import com.example.eruption.R;
 
 import android.app.Activity;
 import android.content.Intent;

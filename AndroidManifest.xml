@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.avalanchegame"
+    package="com.example.eruption"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -14,17 +14,17 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.eruption.MainActivity"
             android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".TitleMenu" >
+        <activity android:name="com.example.eruption.TitleMenu" >
         </activity>
-        <activity android:name=".LoginMenu" >
+        <activity android:name="com.example.eruption.LoginMenu" >
         </activity>
-        <activity android:name=".SignUpMenu" >
+        <activity android:name="com.example.eruption.SignUpMenu" >
         </activity>
         <activity
-            android:name=".GameSelect"
+            android:name="com.example.eruption.GameSelect"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PauseScreen" >
+        <activity android:name="com.example.eruption.PauseScreen" >
         </activity>
     </application>
 

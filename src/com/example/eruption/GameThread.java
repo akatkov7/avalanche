@@ -1,4 +1,4 @@
-package com.example.avalanchegame;
+package com.example.eruption;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,7 +16,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
-import com.example.avalanchegame.Collidable.Collision;
+import com.example.eruption.Collidable.Collision;
 
 // -------------------------------------------------------------------------
 /**

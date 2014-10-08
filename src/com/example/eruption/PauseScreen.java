@@ -1,9 +1,9 @@
-package com.example.avalanchegame;
+package com.example.eruption;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 
