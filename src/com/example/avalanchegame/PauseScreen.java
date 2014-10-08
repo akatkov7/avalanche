@@ -1,5 +1,7 @@
 package com.example.avalanchegame;
 
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -48,6 +50,12 @@ public class PauseScreen
      */
     public void exit(View v)
     {
+        SharedPreferences prefs =
+            this.getSharedPreferences(MainActivity.PREF_FILE, 0);
+        Editor e = prefs.edit();
+        e.putBoolean("gameSaved", false);
+        e.commit();
+
         Intent i = new Intent(this, GameSelect.class);
         setResult(2);
         startActivity(i);

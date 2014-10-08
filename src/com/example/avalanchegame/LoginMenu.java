@@ -62,11 +62,4 @@ public class LoginMenu
         }
     }
 
-
-    @Override
-    public void onBackPressed()
-    {
-        super.onBackPressed();
-    }
-
 }

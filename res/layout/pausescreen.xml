@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:onClick="backToGame"
-        android:text="Back to game" />
+        android:text="New Game" />
 
     <Button
         android:id="@+id/exit"
@@ -19,6 +19,6 @@
         android:layout_below="@id/backToGame"
         android:layout_centerInParent="true"
         android:onClick="exit"
-        android:text="Exit" />
+        android:text="Back to Main Menu" />
 
 </RelativeLayout>
